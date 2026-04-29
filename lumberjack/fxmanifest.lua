@@ -10,7 +10,8 @@ version '0.1.0'
 lua54 'yes'
 
 shared_scripts {
-    'config.lua'
+    'config.lua',
+    'shared/debug.lua'
 }
 
 client_scripts {

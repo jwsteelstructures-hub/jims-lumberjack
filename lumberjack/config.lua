@@ -1,3 +1,6 @@
+Config.Debug = true   -- Set to false for production
+Config.DebugLevel = 3 -- 1 = errors only, 2 = warnings, 3 = full debug
+
 Config = {}
 
 -- Logging companies players can work for
