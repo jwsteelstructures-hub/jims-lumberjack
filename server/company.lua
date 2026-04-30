@@ -1,8 +1,5 @@
-require '@cfx.re/server/compat/module'
-
 -- company.lua
-local Database = require 'database'
-local Company = {}
+Company = {}
 
 -- Load a company by ID
 function Company.get(companyId)

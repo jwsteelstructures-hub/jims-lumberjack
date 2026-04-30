@@ -1,8 +1,5 @@
-require '@cfx.re/server/compat/module'
-
 -- payouts.lua
-local Company = require 'company'
-local Payouts = {}
+Payouts = {}
 
 function Payouts.payPlayer(companyId, playerId, amount)
     local company = Company.get(companyId)

@@ -1,8 +1,5 @@
-require '@cfx.re/server/compat/module'
-
 -- main.lua
-local Company = require 'company'
-local Payouts = require 'payouts'
+-- nothing needed, globals already exist
 
 -- Debug: create a company
 RegisterCommand("lj_create_company", function(source, args)

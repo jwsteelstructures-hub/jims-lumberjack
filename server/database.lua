@@ -1,5 +1,5 @@
 -- database.lua
-local Database = {}
+Database = {}
 
 function Database.query(query, params)
     return MySQL.query.await(query, params)
