@@ -23,9 +23,9 @@ client_scripts {
 
 server_scripts {
     'server/database.lua',
-    'server/main.lua',
-    'server/payouts.lua',
     'server/company.lua',
+    'server/payouts.lua',
+    'server/main.lua'
 }
 
 ui_page 'ui/index.html'
