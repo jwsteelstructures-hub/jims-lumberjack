@@ -11,7 +11,6 @@ lua54 'yes'
 
 shared_scripts {
     'config.lua',
-    'shared/debug.lua'
 }
 
 client_scripts {
