@@ -1,36 +1,20 @@
-local db = {}
+-- database.lua
+local Database = {}
 
-function db.init()
-    -- Create companies table
-    exports.ghmattimysql:execute([[
-        CREATE TABLE IF NOT EXISTS companies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            funds INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    ]])
-
-    -- Create transactions table
-    exports.ghmattimysql:execute([[
-        CREATE TABLE IF NOT EXISTS company_transactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            company_id INTEGER,
-            type TEXT,
-            amount INTEGER,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    ]])
-
-    -- Create lumberjack logs table
-    exports.ghmattimysql:execute([[
-        CREATE TABLE IF NOT EXISTS lumberjack_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            identifier TEXT,
-            amount INTEGER,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    ]])
+function Database.query(query, params)
+    return MySQL.query.await(query, params)
 end
 
-return db
+function Database.scalar(query, params)
+    return MySQL.scalar.await(query, params)
+end
+
+function Database.update(query, params)
+    return MySQL.update.await(query, params)
+end
+
+function Database.insert(query, params)
+    return MySQL.insert.await(query, params)
+end
+
+return Database

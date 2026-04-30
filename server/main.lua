@@ -1,57 +1,33 @@
--- ============================================
--- Lumberjack Job - Server Main
--- Phase 1 Backend Initialization
--- ============================================
+-- main.lua
+local Company = require 'server.company'
+local Payouts = require 'server.payouts'
 
-Debug:Info("Server script loaded.")
+-- Debug: create a company
+RegisterCommand("lj_create_company", function(source, args)
+    local name = table.concat(args, " ")
+    if name == "" then
+        print("Usage: /lj_create_company <name>")
+        return
+    end
 
--- ============================================
--- Initialize Backend
--- ============================================
-
-CreateThread(function()
-    Wait(500)
-    print("[Lumberjack] Initializing backend...")
-    Company.Load()
+    local id = Company.create(name)
+    print("Created company with ID:", id)
 end)
 
--- ============================================
--- Debug Commands
--- ============================================
-
-RegisterCommand("lj_info", function()
-    print("----- Lumberjack Company Info -----")
-    print("Company Name:", Company.name)
-    print("Company Funds:", Company.funds)
-    print("-----------------------------------")
+-- Debug: add funds
+RegisterCommand("lj_add_funds", function(source, args)
+    local id = tonumber(args[1])
+    local amount = tonumber(args[2])
+    Company.addFunds(id, amount)
+    print("Added", amount, "to company", id)
 end)
 
-RegisterCommand("lj_addfunds", function(source, args)
-    local amount = tonumber(args[1]) or 0
-    Company.AddFunds(amount)
-    print("[Lumberjack] Added funds:", amount)
-end)
+-- Debug: pay player
+RegisterCommand("lj_pay", function(source, args)
+    local companyId = tonumber(args[1])
+    local playerId = tonumber(args[2])
+    local amount = tonumber(args[3])
 
--- ============================================
--- Server Events
--- ============================================
-
-RegisterNetEvent("lumberjack:chopped", function(amount)
-    local src = source
-    local identifier = GetPlayerIdentifier(src, 0)
-
-    print("[Lumberjack] Player chopped:", amount)
-
-    exports.oxmysql:insert(
-        "INSERT INTO lumberjack_logs (identifier, amount) VALUES (?, ?)",
-        { identifier, amount }
-    )
-end)
-
-RegisterNetEvent("lumberjack:payPlayer", function(amount)
-    local src = source
-
-    Company.RemoveFunds(amount)
-
-    print("[Lumberjack] Paying player:", src, "Amount:", amount)
+    local ok, msg = Payouts.payPlayer(companyId, playerId, amount)
+    print(ok and "Paid player" or ("Failed: " .. msg))
 end)

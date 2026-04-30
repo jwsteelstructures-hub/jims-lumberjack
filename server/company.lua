@@ -1,77 +1,37 @@
--- ============================================
--- Lumberjack Job - Company Backend (Legacy oxmysql)
--- ============================================
+-- company.lua
+local Database = require 'server.database'
+local Company = {}
 
-Company = {
-    id = nil,
-    name = "Jim's Lumber Co.",
-    funds = 0
-}
-
--- ============================================
--- Load or Create Company
--- ============================================
-
-function Company.Load()
-    print("[Lumberjack] Loading company data...")
-
-    exports.oxmysql:query(
-        "SELECT * FROM companies LIMIT 1",
-        {},
-        function(result)
-            if result and result[1] then
-                Company.id = result[1].id
-                Company.name = result[1].name
-                Company.funds = result[1].funds
-
-                print("[Lumberjack] Company loaded:", Company.name, "Funds:", Company.funds)
-            else
-                exports.oxmysql:insert(
-                    "INSERT INTO companies (name, funds) VALUES (?, ?)",
-                    { Company.name, 0 },
-                    function(insertId)
-                        Company.id = insertId
-                        print("[Lumberjack] Created new company:", Company.name)
-                    end
-                )
-            end
-        end
-    )
+-- Load a company by ID
+function Company.get(companyId)
+    local result = Database.query("SELECT * FROM companies WHERE id = ?", { companyId })
+    return result[1] or nil
 end
 
--- ============================================
--- Company Funds Management
--- ============================================
-
-function Company.AddFunds(amount)
-    Company.funds = Company.funds + amount
-
-    exports.oxmysql:update(
-        "UPDATE companies SET funds = ? WHERE id = ?",
-        { Company.funds, Company.id }
-    )
-
-    Company.LogTransaction("add", amount)
+-- Create a new company
+function Company.create(name)
+    local id = Database.insert("INSERT INTO companies (name, funds) VALUES (?, 0)", { name })
+    return id
 end
 
-function Company.RemoveFunds(amount)
-    Company.funds = Company.funds - amount
-
-    exports.oxmysql:update(
-        "UPDATE companies SET funds = ? WHERE id = ?",
-        { Company.funds, Company.id }
-    )
-
-    Company.LogTransaction("remove", amount)
+-- Add funds
+function Company.addFunds(companyId, amount)
+    Database.update("UPDATE companies SET funds = funds + ? WHERE id = ?", { amount, companyId })
+    Company.log(companyId, "add", amount)
 end
 
--- ============================================
--- Transaction Logging
--- ============================================
+-- Remove funds
+function Company.removeFunds(companyId, amount)
+    Database.update("UPDATE companies SET funds = funds - ? WHERE id = ?", { amount, companyId })
+    Company.log(companyId, "remove", amount)
+end
 
-function Company.LogTransaction(type, amount)
-    exports.oxmysql:insert(
+-- Log transactions
+function Company.log(companyId, type, amount)
+    Database.insert(
         "INSERT INTO company_transactions (company_id, type, amount) VALUES (?, ?, ?)",
-        { Company.id, type, amount }
+        { companyId, type, amount }
     )
 end
+
+return Company
