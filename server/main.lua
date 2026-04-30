@@ -1,3 +1,5 @@
+require '@cfx.re/server/compat/module'
+
 -- main.lua
 local Company = require 'company'
 local Payouts = require 'payouts'

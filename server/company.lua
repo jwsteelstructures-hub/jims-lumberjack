@@ -1,3 +1,5 @@
+require '@cfx.re/server/compat/module'
+
 -- company.lua
 local Database = require 'database'
 local Company = {}
