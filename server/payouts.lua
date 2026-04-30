@@ -17,5 +17,3 @@ function Payouts.payPlayer(companyId, playerId, amount)
 
     return true
 end
-
-return Payouts

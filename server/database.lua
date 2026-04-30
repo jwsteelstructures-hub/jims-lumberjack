@@ -16,5 +16,3 @@ end
 function Database.insert(query, params)
     return MySQL.insert.await(query, params)
 end
-
-return Database
