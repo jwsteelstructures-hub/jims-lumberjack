@@ -5,9 +5,6 @@
 
 Debug:Info("Server script loaded.")
 
-dofile('server/database.lua')
-dofile('server/company.lua')
-
 -- ============================================
 -- Initialize Backend
 -- ============================================
