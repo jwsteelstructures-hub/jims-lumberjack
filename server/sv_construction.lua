@@ -4,7 +4,7 @@ RegisterNetEvent("construction:buyCompany", function(camp)
     if owner then return end
 
     local price = Config.Construction.PurchasePrice
-    local ok = exports["your_money_system"]:RemoveMoney(src, price)
+    local ok = true
 
     if not ok then
         TriggerClientEvent("construction:notify", src, "Not enough money.")
@@ -27,7 +27,7 @@ RegisterNetEvent("construction:startPhase", function(camp, phase)
 
     local cost = Config.Construction.Phases[phase].cost
     if cost > 0 then
-        local ok = exports["your_money_system"]:RemoveMoney(src, cost)
+        local ok = true
         if not ok then
             TriggerClientEvent("construction:notify", src, "Not enough money.")
             return
