@@ -32,3 +32,22 @@ Config.Trees = {
 
 -- Base payout per log
 Config.BasePayout = 4.0
+
+-- Construction camp data
+Config.Camps = {
+    lumber_1 = {
+        prompt = vector3(-1400.12, -214.45, 102.40), -- Appleseed sign
+        office = vector3(-1395.80, -210.32, 102.40), -- office foundation location
+
+        workerPoints = {
+            taskA = {
+                vector3(-1398.2, -212.1, 102.3),
+                vector3(-1396.4, -215.0, 102.2)
+            },
+            taskB = {
+                vector3(-1402.5, -217.3, 102.1),
+                vector3(-1393.9, -209.4, 102.4)
+            }
+        }
+    }
+}

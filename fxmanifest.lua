@@ -14,6 +14,7 @@ shared_scripts {
 }
 
 client_scripts {
+    'client/cl_notify.lua',
     'client/cl_business.lua',
     'client/cl_office.lua',
     'client/main.lua',

@@ -1,9 +1,10 @@
 -- =========================================================
---  Lumber Business - Office Build System (Client)
+--  Lumber Business - Office / Company Ledger Prompt System
 -- =========================================================
 
 local buildingOffice = false
 local officeBuilt = false
+local campId = "lumber_1"
 
 -- =========================================================
 --  Debug Wrapper
@@ -11,7 +12,6 @@ local officeBuilt = false
 local function Debug(msg, level)
     if not Config.Debug then return end
     if level > Config.DebugLevel then return end
-
     print(("^3[Lumber Debug]^7 %s"):format(msg))
 end
 
@@ -29,19 +29,19 @@ local function Draw3DText(coords, text)
 end
 
 -- =========================================================
---  Office Build Logic
+--  Foundation Build Trigger (Phase 1)
 -- =========================================================
-local function StartOfficeBuild()
-    if buildingOffice then return end
+RegisterNetEvent("construction:startFoundation", function(camp)
+    if camp ~= campId then return end
     buildingOffice = true
 
-    local timeLeft = Config.OfficeBuildTime
-
-    Debug("Office build started (" .. timeLeft .. " seconds)", 2)
+    Debug("Foundation build started (60 seconds)", 2)
 
     CreateThread(function()
+        local timeLeft = Config.OfficeBuildTime
+
         while timeLeft > 0 do
-            print(("^2Building office... ^7%d seconds remaining"):format(timeLeft))
+            print(("^2Building foundation... ^7%d seconds remaining"):format(timeLeft))
             Wait(1000)
             timeLeft -= 1
         end
@@ -49,37 +49,59 @@ local function StartOfficeBuild()
         buildingOffice = false
         officeBuilt = true
 
-        print("^2Your office has been constructed.")
-        Debug("Office build complete", 2)
-
-        -- Phase 1B: This is where we will spawn the office building
-        -- and unlock the main business menu.
+        print("^2Your foundation has been completed.")
+        Debug("Foundation build complete", 2)
     end)
-end
+end)
 
 -- =========================================================
---  Main Loop: Detect Office Location
+--  Main Loop: Prompt Logic
 -- =========================================================
 CreateThread(function()
     while true do
         Wait(0)
 
-        -- Must be the owner
-        if not LumberBusiness.IsOwner() then goto continue end
-
-        -- Office already built
-        if officeBuilt then goto continue end
-
         local ped = PlayerPedId()
         local coords = GetEntityCoords(ped)
-        local dist = #(coords - Config.OfficeLocation)
+        local dist = #(coords - Config.Camps[campId].prompt)
 
-        if dist < 3.0 then
-            Draw3DText(Config.OfficeLocation + vector3(0, 0, 1.0), "Press [E] to build your office")
+        if dist > 3.0 then goto continue end
 
-            if IsControlJustPressed(0, 0xCEFD9220) then -- E key
-                StartOfficeBuild()
+        local owner = LumberBusiness.IsOwner()
+
+        -- =====================================================
+        --  NOT OWNER → Show Buy Company Prompt
+        -- =====================================================
+        if not owner then
+            Draw3DText(Config.Camps[campId].prompt + vector3(0, 0, 1.0), "Press [E] to buy company ($3,500)")
+
+            if IsControlJustPressed(0, 0xCEFD9220) then
+                TriggerServerEvent("construction:buyCompany", campId)
             end
+
+            goto continue
+        end
+
+        -- =====================================================
+        --  OWNER BUT FOUNDATION BUILDING
+        -- =====================================================
+        if buildingOffice then
+            Draw3DText(Config.Camps[campId].prompt + vector3(0, 0, 1.0), "Please stand back while your foundation is built.")
+            goto continue
+        end
+
+        -- =====================================================
+        --  OWNER AND FOUNDATION COMPLETE → Company Ledger
+        -- =====================================================
+        if officeBuilt then
+            Draw3DText(Config.Camps[campId].prompt + vector3(0, 0, 1.0), "Press [E] to open Company Ledger")
+
+            if IsControlJustPressed(0, 0xCEFD9220) then
+                -- This will open your business menu
+                TriggerEvent("lumber:openCompanyLedger", campId)
+            end
+
+            goto continue
         end
 
         ::continue::
