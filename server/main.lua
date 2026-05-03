@@ -1,3 +1,4 @@
+print("SERVER MAIN LOADED")
 local Camp = {}
 local json = json or require("json") -- adjust if needed
 
@@ -16,6 +17,15 @@ local function ensureCamp()
         end
     end)
 end
+
+RegisterNetEvent("lumber:requestLedgerData", function()
+    print("SERVER RECEIVED lumber:requestLedgerData") -- ADD THIS
+    local src = source
+    buildLedgerData(function(data)
+        if not data then return end
+        TriggerClientEvent("lumber:receiveLedgerData", src, data)
+    end)
+end)
 
 CreateThread(ensureCamp)
 
