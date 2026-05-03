@@ -7,15 +7,6 @@ local officeBuilt = false
 local campId = "lumber_1"
 
 -- =========================================================
---  Debug Wrapper
--- =========================================================
-local function Debug(msg, level)
-    if not Config.Debug then return end
-    if level > Config.DebugLevel then return end
-    print(("^3[Lumber Debug]^7 %s"):format(msg))
-end
-
--- =========================================================
 --  Draw 3D Text Helper
 -- =========================================================
 local function Draw3DText(coords, text)
@@ -35,8 +26,6 @@ RegisterNetEvent("construction:startFoundation", function(camp)
     if camp ~= campId then return end
     buildingOffice = true
 
-    Debug("Foundation build started (60 seconds)", 2)
-
     CreateThread(function()
         local timeLeft = Config.OfficeBuildTime
 
@@ -50,7 +39,6 @@ RegisterNetEvent("construction:startFoundation", function(camp)
         officeBuilt = true
 
         print("^2Your foundation has been completed.")
-        Debug("Foundation build complete", 2)
     end)
 end)
 
@@ -70,15 +58,13 @@ CreateThread(function()
         local owner = LumberBusiness.IsOwner()
 
         -- =====================================================
-        --  NOT OWNER → Show Buy Company Prompt
+        --  NOT OWNER → No Buying, No Interaction
         -- =====================================================
         if not owner then
-            Draw3DText(Config.Camps[campId].prompt + vector3(0, 0, 1.0), "Press [E] to buy company ($3,500)")
-
-            if IsControlJustPressed(0, 0xCEFD9220) then
-                TriggerServerEvent("construction:buyCompany", campId)
-            end
-
+            Draw3DText(
+                Config.Camps[campId].prompt + vector3(0, 0, 1.0),
+                "You do not own this company."
+            )
             goto continue
         end
 
@@ -86,7 +72,10 @@ CreateThread(function()
         --  OWNER BUT FOUNDATION BUILDING
         -- =====================================================
         if buildingOffice then
-            Draw3DText(Config.Camps[campId].prompt + vector3(0, 0, 1.0), "Please stand back while your foundation is built.")
+            Draw3DText(
+                Config.Camps[campId].prompt + vector3(0, 0, 1.0),
+                "Please stand back while your foundation is built."
+            )
             goto continue
         end
 
@@ -94,10 +83,12 @@ CreateThread(function()
         --  OWNER AND FOUNDATION COMPLETE → Company Ledger
         -- =====================================================
         if officeBuilt then
-            Draw3DText(Config.Camps[campId].prompt + vector3(0, 0, 1.0), "Press [E] to open Company Ledger")
+            Draw3DText(
+                Config.Camps[campId].prompt + vector3(0, 0, 1.0),
+                "Press [E] to open Company Ledger"
+            )
 
             if IsControlJustPressed(0, 0xCEFD9220) then
-                -- This will open your business menu
                 TriggerEvent("lumber:openCompanyLedger", campId)
             end
 

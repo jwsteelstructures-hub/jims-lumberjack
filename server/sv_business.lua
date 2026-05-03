@@ -1,17 +1,20 @@
-print("^1[DEBUG] sv_business.lua loaded")
+print("^2[Lumber] sv_business.lua loaded (Admin Ownership System)")
 
-local Businesses = {}
+-- =========================================================
+--  CONFIG
+-- =========================================================
 
--- Load all businesses on resource start
-CreateThread(function()
-    local result = MySQL.query.await("SELECT * FROM businesses")
-    for _, v in ipairs(result) do
-        Businesses[v.type] = v
-    end
-    print("^2[Lumber] Loaded " .. tostring(#result) .. " businesses.")
-end)
+local ADMIN_ACE = "lumber.admin"   -- ACE permission name
+local DEFAULT_CAMP = "lumber_1"    -- Your only camp for now
 
--- Utility: get license identifier
+-- =========================================================
+--  UTILITIES
+-- =========================================================
+
+local function Notify(src, msg)
+    TriggerClientEvent("lumber:client:Notify", src, msg)
+end
+
 local function GetLicense(src)
     for _, id in ipairs(GetPlayerIdentifiers(src)) do
         if id:sub(1, 7) == "license" then
@@ -21,111 +24,115 @@ local function GetLicense(src)
     return nil
 end
 
--- Utility: notify client
-local function Notify(src, msg)
-    TriggerClientEvent("lumber:client:Notify", src, msg)
+local function IsAdmin(src)
+    return IsPlayerAceAllowed(src, ADMIN_ACE)
 end
 
--- /business command
-RegisterCommand("business", function(src, args)
-    local sub = args[1]
-    local bType = args[2]
+-- =========================================================
+--  LOAD CAMP DATA ON RESOURCE START
+-- =========================================================
 
-    if not sub or not bType then
-        return Notify(src, "Usage: /business <create/delete/give/remove/info> <type> [args]")
+local CampData = {}
+
+CreateThread(function()
+    local result = MySQL.query.await("SELECT * FROM lumber_camps")
+    for _, row in ipairs(result) do
+        CampData[row.camp_id] = row
     end
 
-    -----------------------------------------------------
-    -- CREATE BUSINESS
-    -----------------------------------------------------
-    if sub == "create" then
-        local name = table.concat(args, " ", 3)
-        if name == "" then
-            return Notify(src, "You must provide a business name.")
+    print("^2[Lumber] Loaded " .. tostring(#result) .. " lumber camps.")
+end)
+
+-- =========================================================
+--  SYNC OWNERSHIP TO PLAYER ON JOIN
+-- =========================================================
+
+AddEventHandler("playerJoining", function()
+    local src = source
+    local license = GetLicense(src)
+    if not license then return end
+
+    for campId, camp in pairs(CampData) do
+        if camp.owner_identifier == license then
+            TriggerClientEvent("lumber:client:OwnershipGranted", src, camp)
+        end
+    end
+end)
+
+-- =========================================================
+--  ADMIN COMMAND: /lumber assign <playerID> <campID>
+-- =========================================================
+
+RegisterCommand("lumber", function(src, args)
+    if not IsAdmin(src) then
+        return Notify(src, "You do not have permission to use this command.")
+    end
+
+    local sub = args[1]
+    local target = tonumber(args[2])
+    local campId = args[3] or DEFAULT_CAMP
+
+    if not sub then
+        return Notify(src, "Usage: /lumber <assign/unassign/info> <playerID> <campID>")
+    end
+
+    local camp = CampData[campId]
+    if not camp then
+        return Notify(src, "Camp does not exist: " .. tostring(campId))
+    end
+
+    ---------------------------------------------------------
+    -- ASSIGN OWNERSHIP
+    ---------------------------------------------------------
+    if sub == "assign" then
+        if not target then return Notify(src, "Invalid player ID.") end
+
+        local license = GetLicense(target)
+        if not license then return Notify(src, "Could not get player license.") end
+
+        MySQL.update.await(
+            "UPDATE lumber_camps SET owner_identifier = ? WHERE camp_id = ?",
+            { license, campId }
+        )
+
+        camp.owner_identifier = license
+
+        TriggerClientEvent("lumber:client:OwnershipGranted", target, camp)
+        Notify(src, "Ownership assigned to player " .. target)
+        return
+    end
+
+    ---------------------------------------------------------
+    -- UNASSIGN OWNERSHIP
+    ---------------------------------------------------------
+    if sub == "unassign" then
+        MySQL.update.await(
+            "UPDATE lumber_camps SET owner_identifier = NULL WHERE camp_id = ?",
+            { campId }
+        )
+
+        camp.owner_identifier = nil
+
+        -- Notify all players who might be the owner
+        for _, player in ipairs(GetPlayers()) do
+            local license = GetLicense(player)
+            if license == camp.owner_identifier then
+                TriggerClientEvent("lumber:client:OwnershipRevoked", player)
+            end
         end
 
-        local id = MySQL.insert.await("INSERT INTO businesses (type, name) VALUES (?, ?)", {
-            bType, name
-        })
-
-        Businesses[bType] = {
-            id = id,
-            type = bType,
-            name = name
-        }
-
-        Notify(src, "Business created: " .. name)
+        Notify(src, "Ownership removed for camp " .. campId)
         return
     end
 
-    -----------------------------------------------------
-    -- DELETE BUSINESS
-    -----------------------------------------------------
-    if sub == "delete" then
-        local business = Businesses[bType]
-        if not business then return Notify(src, "Business does not exist.") end
-
-        MySQL.query.await("DELETE FROM business_owners WHERE business_id = ?", { business.id })
-        MySQL.query.await("DELETE FROM businesses WHERE id = ?", { business.id })
-
-        Businesses[bType] = nil
-
-        Notify(src, "Business deleted.")
-        return
-    end
-
-    -----------------------------------------------------
-    -- GIVE OWNERSHIP
-    -----------------------------------------------------
-    if sub == "give" then
-        local target = tonumber(args[3])
-        if not target then return Notify(src, "Invalid player ID.") end
-
-        local business = Businesses[bType]
-        if not business then return Notify(src, "Business does not exist.") end
-
-        local license = GetLicense(target)
-        if not license then return Notify(src, "Could not get player license.") end
-
-        MySQL.insert.await("INSERT INTO business_owners (business_id, citizenid) VALUES (?, ?)", {
-            business.id, license
-        })
-
-        TriggerClientEvent("lumber:client:OwnershipGranted", target, business)
-        Notify(src, "Ownership granted.")
-        return
-    end
-
-    -----------------------------------------------------
-    -- REMOVE OWNERSHIP
-    -----------------------------------------------------
-    if sub == "remove" then
-        local target = tonumber(args[3])
-        if not target then return Notify(src, "Invalid player ID.") end
-
-        local business = Businesses[bType]
-        if not business then return Notify(src, "Business does not exist.") end
-
-        local license = GetLicense(target)
-        if not license then return Notify(src, "Could not get player license.") end
-
-        MySQL.query.await("DELETE FROM business_owners WHERE business_id = ? AND citizenid = ?", {
-            business.id, license
-        })
-
-        TriggerClientEvent("lumber:client:OwnershipRevoked", target)
-        Notify(src, "Ownership removed.")
-        return
-    end
-
-    -----------------------------------------------------
-    -- BUSINESS INFO
-    -----------------------------------------------------
+    ---------------------------------------------------------
+    -- INFO
+    ---------------------------------------------------------
     if sub == "info" then
-        local business = Businesses[bType]
-        if not business then return Notify(src, "Business does not exist.") end
-
-        Notify(src, "Business: " .. business.name)
+        local owner = camp.owner_identifier or "None"
+        Notify(src, "Camp: " .. campId .. " | Owner: " .. owner)
         return
     end
+
+    Notify(src, "Unknown subcommand.")
 end)

@@ -1,34 +1,58 @@
--- company.lua
+-- =========================================================
+--  Company.lua - Lumber Camp Backend (Funds + Ledger)
+-- =========================================================
+
 Company = {}
 
--- Load a company by ID
-function Company.get(companyId)
-    local result = Database.query("SELECT * FROM companies WHERE id = ?", { companyId })
+-- =========================================================
+--  Get Camp Data
+-- =========================================================
+function Company.get(campId)
+    local result = MySQL.query.await(
+        "SELECT * FROM lumber_camps WHERE camp_id = ?",
+        { campId }
+    )
     return result[1] or nil
 end
 
--- Create a new company
-function Company.create(name)
-    local id = Database.insert("INSERT INTO companies (name, funds) VALUES (?, 0)", { name })
-    return id
+-- =========================================================
+--  Create Camp (Only needed if adding new camps manually)
+-- =========================================================
+function Company.create(campId)
+    MySQL.insert.await(
+        "INSERT INTO lumber_camps (camp_id, owner_identifier, funds, phase) VALUES (?, NULL, 0, 1)",
+        { campId }
+    )
 end
 
--- Add funds
-function Company.addFunds(companyId, amount)
-    Database.update("UPDATE companies SET funds = funds + ? WHERE id = ?", { amount, companyId })
-    Company.log(companyId, "add", amount)
+-- =========================================================
+--  Add Funds
+-- =========================================================
+function Company.addFunds(campId, amount)
+    MySQL.update.await(
+        "UPDATE lumber_camps SET funds = funds + ? WHERE camp_id = ?",
+        { amount, campId }
+    )
+    Company.log(campId, "add", amount)
 end
 
--- Remove funds
-function Company.removeFunds(companyId, amount)
-    Database.update("UPDATE companies SET funds = funds - ? WHERE id = ?", { amount, companyId })
-    Company.log(companyId, "remove", amount)
+-- =========================================================
+--  Remove Funds
+-- =========================================================
+function Company.removeFunds(campId, amount)
+    MySQL.update.await(
+        "UPDATE lumber_camps SET funds = funds - ? WHERE camp_id = ?",
+        { amount, campId }
+    )
+    Company.log(campId, "remove", amount)
 end
 
--- Log transactions
-function Company.log(companyId, type, amount)
-    Database.insert(
-        "INSERT INTO company_transactions (company_id, type, amount) VALUES (?, ?, ?)",
-        { companyId, type, amount }
+-- =========================================================
+--  Log Transactions
+-- =========================================================
+function Company.log(campId, type, amount)
+    MySQL.insert.await(
+        "INSERT INTO lumber_transactions (camp_id, type, amount) VALUES (?, ?, ?)",
+        { campId, type, amount }
     )
 end
