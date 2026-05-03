@@ -37,9 +37,11 @@ CreateThread(function()
         Wait(0)
 
         local ped = PlayerPedId()
-        local coords = GetEntityCoords(ped)
 
-        -- Your new single interaction point
+        -- FIX: Force coords into a proper vector3
+        local x, y, z = table.unpack(GetEntityCoords(ped))
+        local coords = vector3(x, y, z)
+
         local ledgerPos = Config.Camps[campId].ledgerPrompt
 
         -- Distance check
