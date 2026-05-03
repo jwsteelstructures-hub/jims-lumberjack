@@ -1,0 +1,17 @@
+-- OFFICE PHASE UPGRADE
+RegisterNUICallback("lumber_upgrade_office", function(_, cb)
+    TriggerServerEvent("lumber:upgradeOfficePhase")
+    cb({})
+end)
+
+-- REQUEST PLACE STORAGE / WORKSTATION / TENT
+RegisterNUICallback("lumber_place_upgrade", function(data, cb)
+    -- data = { category = "storage", upgradeType = "hardwood" }
+    TriggerServerEvent("lumber:requestPlaceUpgrade", data)
+    cb({})
+end)
+
+-- When office phase is built
+RegisterNetEvent("lumber:officePhaseBuilt", function(phase)
+    -- You can trigger a UI refresh here
+end)

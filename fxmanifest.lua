@@ -26,6 +26,7 @@ client_scripts {
     -- Existing client files
     'client/main.lua',
     'client/chopping.lua',
+    'client/shop.lua',
     'client/wagon.lua',
     'client/ui.lua'
 }
@@ -43,6 +44,7 @@ server_scripts {
     'server/company.lua',
     'server/payouts.lua',
     'server/main.lua'
+    'server/shop.lua'
 }
 
 ui_page 'ui/index.html'

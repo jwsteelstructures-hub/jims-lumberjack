@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lumber Company</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="lumber-ui" class="hidden">
+
+    <!-- HEADER -->
+    <div id="header">
+        <div id="company-name">LUMBER COMPANY LEDGER</div>
+        <div id="close-btn">X</div>
+    </div>
+
+    <!-- TAB BUTTONS -->
+    <div id="tabs">
+        <button class="tab-btn active" data-tab="ledger" data-icon="★">Ledger</button>
+        <button class="tab-btn" data-tab="upgrades" data-icon="▲">Upgrades</button>
+        <button class="tab-btn" data-tab="stables" data-icon="♞">Stables</button>
+        <button class="tab-btn" data-tab="inventory" data-icon="☰">Inventory</button>
+        <button class="tab-btn" data-tab="shop" data-icon="$">Shop Front</button>
+        <button class="tab-btn" data-tab="delivery" data-icon="✉">Delivery</button>
+    </div>
+
+    <!-- TAB CONTENT -->
+    <div id="tab-content">
+
+        <!-- LEDGER TAB -->
+        <div id="ledger" class="tab">
+            <h2 class="tab-title">Ledger</h2>
+            <div class="divider"></div>
+
+            <div class="ledger-row">
+                <span>Total Funds:</span>
+                <span id="ledger-funds">$0</span>
+            </div>
+            <div class="ledger-row">
+                <span>Total Income:</span>
+                <span id="ledger-income">$0</span>
+            </div>
+
+            <div class="ledger-actions">
+                <div class="field-group">
+                    <label>Deposit</label>
+                    <input id="ledger-deposit-amount" type="number" placeholder="Amount">
+                    <button id="ledger-deposit-btn">Confirm</button>
+                </div>
+
+                <div class="field-group">
+                    <label>Withdraw</label>
+                    <input id="ledger-withdraw-amount" type="number" placeholder="Amount">
+                    <button id="ledger-withdraw-btn">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPGRADES TAB -->
+        <div id="upgrades" class="tab hidden">
+            <h2 class="tab-title">Upgrades</h2>
+            <div class="divider"></div>
+
+            <div class="upgrade-section">
+                <h3>Office</h3>
+                <button id="upgrade-office-btn" class="primary-btn">Upgrade Office</button>
+            </div>
+
+            <div class="upgrade-section">
+                <h3>Storages</h3>
+                <button class="secondary-btn" data-upgrade="hardwood" data-category="storage">Hardwood Storage</button>
+                <button class="secondary-btn" data-upgrade="plank" data-category="storage">Plank Storage</button>
+                <button class="secondary-btn" data-upgrade="sap" data-category="storage">Sap Storage</button>
+            </div>
+
+            <div class="upgrade-section">
+                <h3>Workstations</h3>
+                <button class="secondary-btn" data-upgrade="splitting" data-category="workstation">Splitting Station</button>
+                <button class="secondary-btn" data-upgrade="sawing" data-category="workstation">Sawing Station</button>
+                <button class="secondary-btn" data-upgrade="planing" data-category="workstation">Planing Station</button>
+                <button class="secondary-btn" data-upgrade="sharpening" data-category="workstation">Sharpening Wheel</button>
+            </div>
+
+            <div class="upgrade-section">
+                <h3>Tents</h3>
+                <button class="secondary-btn" data-upgrade="tent" data-category="tent">Place Tent</button>
+            </div>
+        </div>
+
+        <!-- STABLES TAB -->
+        <div id="stables" class="tab hidden">
+            <h2 class="tab-title">Stables</h2>
+            <div class="divider"></div>
+
+            <button id="upgrade-stables-btn" class="primary-btn">Upgrade Stables</button>
+
+            <h3>Buy Wagons</h3>
+            <div class="button-row">
+                <button class="secondary-btn" data-wagon="lumber">Lumber Wagon</button>
+                <button class="secondary-btn" data-wagon="sap">Sap Wagon</button>
+                <button class="secondary-btn" data-wagon="cargo">Cargo Wagon</button>
+            </div>
+
+            <h3>Wagon Spawn</h3>
+            <button id="set-wagon-spawn-btn" class="secondary-btn">Set Wagon Spawn</button>
+        </div>
+
+        <!-- INVENTORY TAB -->
+        <div id="inventory" class="tab hidden">
+            <h2 class="tab-title">Inventory</h2>
+            <div class="divider"></div>
+
+            <div id="inventory-container">
+                <div id="player-inventory" class="inventory-box">
+                    <h3>Your Satchel</h3>
+                    <div class="item-list grid" id="player-items"></div>
+                </div>
+
+                <div id="storage-inventory" class="inventory-box">
+                    <h3>Storage</h3>
+                    <select id="storage-select"></select>
+                    <div class="item-list grid" id="storage-items"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHOP FRONT TAB -->
+        <div id="shop" class="tab hidden">
+            <h2 class="tab-title">Shop Front</h2>
+            <div class="divider"></div>
+
+            <div id="shop-container">
+                <div id="shop-player" class="inventory-box">
+                    <h3>Your Satchel</h3>
+                    <div class="item-list grid" id="shop-player-items"></div>
+                </div>
+
+                <div id="shop-storage" class="inventory-box">
+                    <h3>Shop Inventory</h3>
+                    <div class="item-list grid" id="shop-storage-items"></div>
+                </div>
+
+                <div id="shop-price-box">
+                    <label>Set Price</label>
+                    <input id="shop-price-input" type="number" placeholder="Price per item">
+                    <button id="shop-set-price-btn" class="primary-btn">Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DELIVERY TAB -->
+        <div id="delivery" class="tab hidden">
+            <h2 class="tab-title">Delivery</h2>
+            <div class="divider"></div>
+
+            <div class="field-group">
+                <label>Wagon</label>
+                <select id="delivery-wagon-select">
+                    <option value="lumber">Lumber Wagon</option>
+                    <option value="sap">Sap Wagon</option>
+                    <option value="cargo">Cargo Wagon</option>
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label>Load Type</label>
+                <select id="delivery-species-select">
+                    <option value="oak">Oak Logs</option>
+                    <option value="pine">Pine Logs</option>
+                    <option value="maple">Maple Logs</option>
+                    <option value="cedar">Cedar Logs</option>
+                    <option value="sap">Sap Barrels</option>
+                </select>
+            </div>
+
+            <button id="start-delivery-btn" class="primary-btn">Start Delivery</button>
+        </div>
+
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
