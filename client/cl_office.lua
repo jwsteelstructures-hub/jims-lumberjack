@@ -70,6 +70,12 @@ end
 --  Blip Visibility Controller (Owner + Workers)
 -- =========================================================
 CreateThread(function()
+
+    -- Wait until ownership data is available
+    while LumberBusiness.IsOwner() == nil do
+        Wait(500)
+    end
+
     while true do
         Wait(1500)
 
