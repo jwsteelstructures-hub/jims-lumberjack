@@ -133,15 +133,17 @@ local function buildLedgerData(cb)
             }
 
             cb(ledger)
-
-        end) end) end) end)
-    end)
-end
-
-RegisterNetEvent("lumber:requestLedgerData", function()
+            
+            RegisterNetEvent("lumber:requestLedgerData", function()
     local src = source
     buildLedgerData(function(data)
         if not data then return end
         TriggerClientEvent("lumber:receiveLedgerData", src, data)
     end)
 end)
+
+        end) end) end) end)
+    end)
+end
+
+

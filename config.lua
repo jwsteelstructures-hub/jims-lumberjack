@@ -88,11 +88,12 @@ Config.BulkStorage = {
 Config.ShopFront = {
     model = "p_storefront01x",
     location = vector4(0.0, 0.0, 0.0, 0.0),
-    baseCapacity = 500
-    basecost = 100
-    baseUpgradeCost = 50
+    baseCapacity = 500,
+    baseCost = 100,
+    baseUpgradeCost = 50,
     slotsPerUpgrade = 100
 }
+
 
 Config.Ranks = {
     [1] = "Lumberjack",
