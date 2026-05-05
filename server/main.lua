@@ -245,7 +245,7 @@ end)
 -- TEST COMMAND
 -----------------------------------------
 
-RegisterCommand("lumbertest", function(source)
-    print("LUMBERTES COMMAND FIRED")
+RegisterCommand("jimsui", function(source)
+    print("JIMSUI COMMAND FIRED")
     TriggerClientEvent("lumber:openUI", source)
 end)
