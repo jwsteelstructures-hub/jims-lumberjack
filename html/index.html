@@ -8,28 +8,28 @@
 </head>
 <body>
 
-<div id="lumber-ui" class="hidden vorp-fade-out">
+<div id="lumber-ui" class="vorp-admin centered hidden">
 
     <!-- HEADER -->
-    <div id="header" class="vorp-header">
-        <div id="company-name">LUMBER COMPANY LEDGER</div>
-        <button id="close-btn" class="vorp-close-btn">×</button>
+    <div class="admin-header">
+        <div class="admin-title">LUMBER COMPANY LEDGER</div>
+        <button id="close-btn" class="admin-close">×</button>
     </div>
 
     <!-- TABS -->
-    <div id="tabs" class="vorp-tabs">
+    <div class="admin-tabs">
         <button class="tab-btn active" data-tab="ledger">Ledger</button>
         <button class="tab-btn" data-tab="upgrades">Upgrades</button>
         <button class="tab-btn" data-tab="stables">Stables</button>
         <button class="tab-btn" data-tab="inventory">Inventory</button>
     </div>
 
-    <!-- CONTENT -->
-    <div id="tab-content" class="vorp-content">
+    <!-- CONTENT AREA -->
+    <div id="tab-content" class="admin-content">
 
         <!-- LEDGER -->
         <div id="ledger" class="tab">
-            <h2 class="tab-title">Ledger</h2>
+            <h2 class="section-title">Ledger</h2>
             <div class="divider"></div>
 
             <div class="ledger-row">
@@ -59,7 +59,7 @@
 
         <!-- UPGRADES -->
         <div id="upgrades" class="tab hidden">
-            <h2 class="tab-title">Upgrades</h2>
+            <h2 class="section-title">Upgrades</h2>
             <div class="divider"></div>
 
             <div class="upgrade-section">
@@ -90,7 +90,7 @@
 
         <!-- STABLES -->
         <div id="stables" class="tab hidden">
-            <h2 class="tab-title">Stables</h2>
+            <h2 class="section-title">Stables</h2>
             <div class="divider"></div>
 
             <button id="upgrade-stables-btn" class="primary-btn">Upgrade Stables</button>
@@ -106,23 +106,11 @@
             <button id="set-wagon-spawn-btn" class="secondary-btn">Set Wagon Spawn</button>
         </div>
 
-        <!-- INVENTORY -->
+        <!-- INVENTORY (placeholder for now) -->
         <div id="inventory" class="tab hidden">
-            <h2 class="tab-title">Inventory</h2>
+            <h2 class="section-title">Inventory</h2>
             <div class="divider"></div>
-
-            <div id="inventory-container">
-                <div id="player-inventory" class="inventory-box">
-                    <h3>Your Satchel</h3>
-                    <div class="item-list grid" id="player-items"></div>
-                </div>
-
-                <div id="storage-inventory" class="inventory-box">
-                    <h3>Storage</h3>
-                    <select id="storage-select"></select>
-                    <div class="item-list grid" id="storage-items"></div>
-                </div>
-            </div>
+            <p>Inventory UI coming next.</p>
         </div>
 
     </div>
