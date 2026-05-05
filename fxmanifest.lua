@@ -28,6 +28,7 @@ client_scripts {
     'client/delivery.lua',
     'client/shop.lua',
     'client/utils.lua'
+    'client/chopping.lua'
 }
 
 server_scripts {
@@ -39,4 +40,5 @@ server_scripts {
     'server/delivery.lua',
     'server/shop.lua',
     'server/database.lua'
+    'server/chopping.lua'
 }
