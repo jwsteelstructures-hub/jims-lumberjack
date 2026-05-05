@@ -1,118 +1,120 @@
-<!-- DEBUG: THIS IS THE REAL UI -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lumber Company Ledger</title>
+    <title>Lumber Company Menu</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="lumber-ui" class="vorp-admin centered hidden">
+<div id="wm-root" class="wm-root hidden">
+    <!-- MAIN MENU -->
+    <div id="wm-main" class="wm-panel">
+        <div class="wm-title">VORP ADMIN</div>
 
-    <!-- HEADER -->
-    <div class="admin-header">
-        <div class="admin-title">LUMBER COMPANY LEDGER</div>
-        <button id="close-btn" class="admin-close">×</button>
+        <div class="wm-list">
+            <div class="wm-item selected" data-target="ledger">
+                <span>Ledger</span>
+            </div>
+            <div class="wm-item" data-target="upgrades">
+                <span>Upgrades</span>
+            </div>
+            <div class="wm-item" data-target="stables">
+                <span>Stables</span>
+            </div>
+            <div class="wm-item" data-target="inventory">
+                <span>Inventory</span>
+            </div>
+        </div>
+
+        <div class="wm-footer">
+            <div class="wm-page">1/4</div>
+            <div id="wm-desc" class="wm-desc">
+                Manage company funds, income, deposits and withdrawals.
+            </div>
+        </div>
     </div>
 
-    <!-- TABS -->
-    <div class="admin-tabs">
-        <button class="tab-btn active" data-tab="ledger">Ledger</button>
-        <button class="tab-btn" data-tab="upgrades">Upgrades</button>
-        <button class="tab-btn" data-tab="stables">Stables</button>
-        <button class="tab-btn" data-tab="inventory">Inventory</button>
+    <!-- LEDGER PANEL -->
+    <div id="panel-ledger" class="wm-panel hidden">
+        <div class="wm-title">Ledger</div>
+        <div class="wm-separator"></div>
+
+        <div class="wm-line">
+            <span>Total Funds:</span>
+            <span id="ledger-funds">$0</span>
+        </div>
+        <div class="wm-line">
+            <span>Total Income:</span>
+            <span id="ledger-income">$0</span>
+        </div>
+
+        <div class="wm-section-label">Deposit</div>
+        <div class="wm-input-row">
+            <input id="ledger-deposit-amount" type="number" placeholder="Amount">
+            <button id="ledger-deposit-btn" class="wm-btn">Confirm</button>
+        </div>
+
+        <div class="wm-section-label">Withdraw</div>
+        <div class="wm-input-row">
+            <input id="ledger-withdraw-amount" type="number" placeholder="Amount">
+            <button id="ledger-withdraw-btn" class="wm-btn">Confirm</button>
+        </div>
+
+        <div class="wm-footer">
+            <div class="wm-hint">BACKSPACE - Back</div>
+        </div>
     </div>
 
-    <!-- CONTENT AREA -->
-    <div id="tab-content" class="admin-content">
+    <!-- UPGRADES PANEL -->
+    <div id="panel-upgrades" class="wm-panel hidden">
+        <div class="wm-title">Upgrades</div>
+        <div class="wm-separator"></div>
 
-        <!-- LEDGER -->
-        <div id="ledger" class="tab">
-            <h2 class="section-title">Ledger</h2>
-            <div class="divider"></div>
-
-            <div class="ledger-row">
-                <span>Total Funds:</span>
-                <span id="ledger-funds">$0</span>
-            </div>
-
-            <div class="ledger-row">
-                <span>Total Income:</span>
-                <span id="ledger-income">$0</span>
-            </div>
-
-            <div class="ledger-actions">
-                <div class="field-group">
-                    <label>Deposit</label>
-                    <input id="ledger-deposit-amount" type="number" placeholder="Amount">
-                    <button id="ledger-deposit-btn" class="primary-btn">Confirm</button>
-                </div>
-
-                <div class="field-group">
-                    <label>Withdraw</label>
-                    <input id="ledger-withdraw-amount" type="number" placeholder="Amount">
-                    <button id="ledger-withdraw-btn" class="primary-btn">Confirm</button>
-                </div>
-            </div>
+        <div class="wm-list">
+            <div class="wm-line">Office Upgrade</div>
+            <div class="wm-line">Storage Upgrades</div>
+            <div class="wm-line">Workstation Upgrades</div>
+            <div class="wm-line">Tent Placement</div>
         </div>
 
-        <!-- UPGRADES -->
-        <div id="upgrades" class="tab hidden">
-            <h2 class="section-title">Upgrades</h2>
-            <div class="divider"></div>
+        <div class="wm-footer">
+            <div class="wm-hint">BACKSPACE - Back</div>
+        </div>
+    </div>
 
-            <div class="upgrade-section">
-                <h3>Office</h3>
-                <button id="upgrade-office-btn" class="primary-btn">Upgrade Office</button>
-            </div>
+    <!-- STABLES PANEL -->
+    <div id="panel-stables" class="wm-panel hidden">
+        <div class="wm-title">Stables</div>
+        <div class="wm-separator"></div>
 
-            <div class="upgrade-section">
-                <h3>Storages</h3>
-                <button class="secondary-btn" data-upgrade="hardwood" data-category="storage">Hardwood Storage</button>
-                <button class="secondary-btn" data-upgrade="plank" data-category="storage">Plank Storage</button>
-                <button class="secondary-btn" data-upgrade="sap" data-category="storage">Sap Storage</button>
-            </div>
+        <div class="wm-line">Upgrade Stables</div>
 
-            <div class="upgrade-section">
-                <h3>Workstations</h3>
-                <button class="secondary-btn" data-upgrade="splitting" data-category="workstation">Splitting Station</button>
-                <button class="secondary-btn" data-upgrade="sawing" data-category="workstation">Sawing Station</button>
-                <button class="secondary-btn" data-upgrade="planing" data-category="workstation">Planing Station</button>
-                <button class="secondary-btn" data-upgrade="sharpening" data-category="workstation">Sharpening Wheel</button>
-            </div>
-
-            <div class="upgrade-section">
-                <h3>Tents</h3>
-                <button class="secondary-btn" data-upgrade="tent" data-category="tent">Place Tent</button>
-            </div>
+        <div class="wm-section-label">Buy Wagons</div>
+        <div class="wm-list">
+            <div class="wm-line">Lumber Wagon</div>
+            <div class="wm-line">Sap Wagon</div>
+            <div class="wm-line">Cargo Wagon</div>
         </div>
 
-        <!-- STABLES -->
-        <div id="stables" class="tab hidden">
-            <h2 class="section-title">Stables</h2>
-            <div class="divider"></div>
+        <div class="wm-section-label">Spawn</div>
+        <div class="wm-line">Set Wagon Spawn</div>
 
-            <button id="upgrade-stables-btn" class="primary-btn">Upgrade Stables</button>
-
-            <h3>Buy Wagons</h3>
-            <div class="button-row">
-                <button class="secondary-btn" data-wagon="lumber">Lumber Wagon</button>
-                <button class="secondary-btn" data-wagon="sap">Sap Wagon</button>
-                <button class="secondary-btn" data-wagon="cargo">Cargo Wagon</button>
-            </div>
-
-            <h3>Wagon Spawn</h3>
-            <button id="set-wagon-spawn-btn" class="secondary-btn">Set Wagon Spawn</button>
+        <div class="wm-footer">
+            <div class="wm-hint">BACKSPACE - Back</div>
         </div>
+    </div>
 
-        <!-- INVENTORY (placeholder for now) -->
-        <div id="inventory" class="tab hidden">
-            <h2 class="section-title">Inventory</h2>
-            <div class="divider"></div>
-            <p>Inventory UI coming next.</p>
+    <!-- INVENTORY PANEL -->
+    <div id="panel-inventory" class="wm-panel hidden">
+        <div class="wm-title">Inventory</div>
+        <div class="wm-separator"></div>
+
+        <div class="wm-line">Inventory UI coming next.</div>
+
+        <div class="wm-footer">
+            <div class="wm-hint">BACKSPACE - Back</div>
         </div>
-
     </div>
 </div>
 

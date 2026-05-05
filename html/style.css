@@ -1,175 +1,126 @@
-/* GLOBAL -------------------------------------------------------------- */
-
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
-
 body {
     margin: 0;
     padding: 0;
-    font-family: "Cinzel", serif;
     background: transparent;
+    font-family: Arial, sans-serif;
     user-select: none;
-    color: #f5e3c5;
 }
 
 .hidden {
     display: none !important;
 }
 
-/* ADMIN PANEL (VORP Admin Style) ------------------------------------- */
-
-.vorp-admin {
+.wm-root {
     position: absolute;
-    top: 10%;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-
-    width: 760px;
-
-    background: #111;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    background: rgba(0, 0, 0, 0.92);
     border: 2px solid #c9a15b;
-    border-radius: 6px;
-
-    box-shadow:
-        0 0 12px rgba(0,0,0,0.8),
-        inset 0 0 8px rgba(0,0,0,0.5);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.9);
+    color: #ffffff;
 }
 
-/* HEADER --------------------------------------------------------------- */
-
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 12px 20px;
-
-    background: linear-gradient(90deg, #1a1a1a, #2a2a2a, #1a1a1a);
-    border-bottom: 1px solid #c9a15b;
+.wm-panel {
+    padding: 16px 18px 12px 18px;
 }
 
-.admin-title {
+.wm-title {
+    text-align: center;
     font-size: 20px;
     letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #f5e3c5;
+    margin-bottom: 10px;
+    color: #ffffff;
 }
 
-.admin-close {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 1px solid #c9a15b;
-    background: #1a1a1a;
-    color: #f5e3c5;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 22px;
+.wm-separator {
+    height: 2px;
+    background: #c9a15b;
+    margin-bottom: 10px;
 }
 
-/* TABS ----------------------------------------------------------------- */
-
-.admin-tabs {
-    display: flex;
-    gap: 4px;
-    padding: 8px 12px;
-    background: #0d0d0d;
-    border-bottom: 1px solid #c9a15b;
+.wm-list {
+    margin-top: 6px;
+    margin-bottom: 8px;
 }
 
-.admin-tabs .tab-btn {
-    background: #1a1a1a;
-    border: 1px solid #3a3a3a;
-    border-bottom: none;
-
-    padding: 8px 14px;
-
-    color: #d9c3a0;
-    cursor: pointer;
-
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 12px;
-
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+.wm-item {
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+    background: rgba(0, 0, 0, 0.4);
 }
 
-.admin-tabs .tab-btn.active {
-    background: #252525;
-    border-color: #c9a15b;
-    color: #f5e3c5;
-}
-
-/* CONTENT -------------------------------------------------------------- */
-
-.admin-content {
-    padding: 20px 24px;
-    background: #141414;
-}
-
-.section-title {
-    font-size: 18px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 6px;
-}
-
-.divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #c9a15b, transparent);
-    margin-bottom: 14px;
-}
-
-/* LEDGER --------------------------------------------------------------- */
-
-.ledger-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
+.wm-item span {
     font-size: 14px;
 }
 
-.ledger-actions {
-    display: flex;
-    gap: 24px;
-    margin-top: 16px;
+.wm-item.selected {
+    border: 1px solid #ff0000;
+    background: rgba(255, 0, 0, 0.15);
 }
 
-.field-group {
+.wm-line {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    padding: 4px 2px;
+    font-size: 14px;
+}
+
+.wm-section-label {
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #c9a15b;
+}
+
+.wm-input-row {
+    display: flex;
     gap: 6px;
+    margin-bottom: 6px;
 }
 
-.field-group input {
-    background: #151515;
-    border: 1px solid #3a3a3a;
-    color: #f5e3c5;
-    padding: 8px 10px;
-    border-radius: 3px;
+.wm-input-row input {
+    flex: 1;
+    background: #111;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 4px 6px;
     font-size: 13px;
 }
 
-/* BUTTONS -------------------------------------------------------------- */
-
-.primary-btn,
-.secondary-btn {
-    background: #1a1a1a;
+.wm-btn {
+    background: #111;
     border: 1px solid #c9a15b;
-    color: #f5e3c5;
-
-    padding: 8px 14px;
-    border-radius: 3px;
-
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    color: #fff;
+    padding: 4px 8px;
     font-size: 12px;
-
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.6);
+    cursor: pointer;
 }
 
-.primary-btn:hover,
-.secondary-btn:hover {
-    background: #2a2a2a;
+.wm-btn:hover {
+    background: #222;
+}
+
+.wm-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #cccccc;
+}
+
+.wm-page {
+    color: #ffffff;
+}
+
+.wm-desc {
+    text-align: right;
+}
+
+.wm-hint {
+    text-align: right;
+    width: 100%;
 }

@@ -20,6 +20,7 @@ shared_scripts {
 }
 
 client_scripts {
+    'client.lua',
     'config.lua',
     'client/ui.lua',
     'client/ui_placement.lua',
@@ -33,6 +34,7 @@ client_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    'server.lua',
     'config.lua',
     'server/main.lua',
     'server/upgrades.lua',

@@ -1,225 +1,109 @@
-function post(action, data) {
-    fetch(`https://${GetParentResourceName()}/${action}`, {
-        method: "POST",
-        body: JSON.stringify(data || {})
+const root = document.getElementById('wm-root');
+const mainMenu = document.getElementById('wm-main');
+const panels = {
+    ledger: document.getElementById('panel-ledger'),
+    upgrades: document.getElementById('panel-upgrades'),
+    stables: document.getElementById('panel-stables'),
+    inventory: document.getElementById('panel-inventory')
+};
+
+const items = Array.from(document.querySelectorAll('.wm-item'));
+const desc = document.getElementById('wm-desc');
+
+const descriptions = {
+    ledger: 'Manage company funds, income, deposits and withdrawals.',
+    upgrades: 'Upgrade office, storage, workstations and tents.',
+    stables: 'Manage stables, wagons and spawn points.',
+    inventory: 'Access company inventory (coming soon).'
+};
+
+let currentIndex = 0;
+let inSubmenu = false;
+let currentPanel = null;
+
+function setSelected(index) {
+    items.forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
     });
+    const target = items[index].dataset.target;
+    desc.textContent = descriptions[target] || '';
+    currentIndex = index;
 }
 
-const uiRoot = document.getElementById("lumber-ui");
+function openMainMenu() {
+    inSubmenu = false;
+    currentPanel = null;
+    Object.values(panels).forEach(p => p.classList.add('hidden'));
+    mainMenu.classList.remove('hidden');
+    root.classList.remove('hidden');
+    setSelected(currentIndex);
+}
 
-function openUI(data) {
-    uiRoot.classList.remove("hidden", "vorp-fade-out");
-    uiRoot.classList.add("vorp-fade-in");
-    switchTab("ledger");
-    updateLedger(data);
+function openPanel(target) {
+    inSubmenu = true;
+    mainMenu.classList.add('hidden');
+    Object.values(panels).forEach(p => p.classList.add('hidden'));
+    const panel = panels[target];
+    if (panel) {
+        panel.classList.remove('hidden');
+        currentPanel = target;
+    }
 }
 
 function closeUI() {
-    uiRoot.classList.remove("vorp-fade-in");
-    uiRoot.classList.add("vorp-fade-out");
-    setTimeout(() => {
-        uiRoot.classList.add("hidden");
-    }, 140);
+    root.classList.add('hidden');
+    inSubmenu = false;
+    currentPanel = null;
+    Object.values(panels).forEach(p => p.classList.add('hidden'));
+    mainMenu.classList.remove('hidden');
 }
 
-window.addEventListener("message", function (event) {
+window.addEventListener('keydown', (e) => {
+    if (root.classList.contains('hidden')) return;
+
+    // BACKSPACE: back / close
+    if (e.key === 'Backspace') {
+        e.preventDefault();
+        if (inSubmenu) {
+            openMainMenu();
+        } else {
+            closeUI();
+            fetch(`https://${GetParentResourceName()}/close`, { method: 'POST', body: '{}' }).catch(() => {});
+        }
+        return;
+    }
+
+    if (inSubmenu) return;
+
+    // UP/DOWN navigation
+    if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        currentIndex = (currentIndex - 1 + items.length) % items.length;
+        setSelected(currentIndex);
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        currentIndex = (currentIndex + 1) % items.length;
+        setSelected(currentIndex);
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const target = items[currentIndex].dataset.target;
+        openPanel(target);
+    }
+});
+
+// NUI open/close from Lua (/lumbertest)
+window.addEventListener('message', (event) => {
     const data = event.data;
-
-    if (data.action === "lumber_open") {
-        openUI(data.data);
-    }
-
-    if (data.action === "lumber_open_ledger") {
-        updateLedger(data.data);
-    }
-
-    if (data.action === "lumber_open_inventory") {
-        updateInventory(data.data);
-    }
-
-    if (data.action === "lumber_open_upgrades") {
-        updateUpgrades(data.data);
-    }
-
-    if (data.action === "lumber_open_stables") {
-        updateStables(data.data);
-    }
-});
-
-document.getElementById("close-btn").addEventListener("click", () => {
-    closeUI();
-    post("lumber_ui_close", {});
-});
-
-document.querySelectorAll("#tabs .tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        post("lumber_ui_switch_tab", { tab: btn.dataset.tab });
-    });
-});
-
-function switchTab(tabName) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
-    const tab = document.getElementById(tabName);
-    if (tab) tab.classList.remove("hidden");
-
-    document.querySelectorAll("#tabs .tab-btn").forEach(b => {
-        b.classList.toggle("active", b.dataset.tab === tabName);
-    });
-}
-
-/* LEDGER */
-
-function updateLedger(data) {
-    document.getElementById("ledger-funds").innerText = "$" + (data.funds || 0);
-    document.getElementById("ledger-income").innerText = "$" + (data.income || 0);
-}
-
-document.getElementById("ledger-deposit-btn").addEventListener("click", () => {
-    const amount = Number(document.getElementById("ledger-deposit-amount").value) || 0;
-    post("lumber_ledger_deposit", { amount });
-});
-
-document.getElementById("ledger-withdraw-btn").addEventListener("click", () => {
-    const amount = Number(document.getElementById("ledger-withdraw-amount").value) || 0;
-    post("lumber_ledger_withdraw", { amount });
-});
-
-/* UPGRADES */
-
-function updateUpgrades(data) {}
-
-document.getElementById("upgrade-office-btn").addEventListener("click", () => {
-    post("lumber_upgrade_office", {});
-});
-
-document.querySelectorAll("#upgrades button[data-upgrade]").forEach(btn => {
-    btn.addEventListener("click", () => {
-        post("lumber_place_upgrade", {
-            category: btn.dataset.category,
-            upgradeType: btn.dataset.upgrade
-        });
-    });
-});
-
-/* STABLES */
-
-function updateStables(data) {}
-
-document.getElementById("upgrade-stables-btn").addEventListener("click", () => {
-    post("lumber_upgrade_stables", {});
-});
-
-document.querySelectorAll("#stables button[data-wagon]").forEach(btn => {
-    btn.addEventListener("click", () => {
-        post("lumber_buy_wagon", { wagonType: btn.dataset.wagon });
-    });
-});
-
-document.getElementById("set-wagon-spawn-btn").addEventListener("click", () => {
-    post("lumber_set_wagon_spawn", {});
-});
-
-/* INVENTORY */
-
-let dragSource = null;
-
-function makeItemElement(item, count, context) {
-    const el = document.createElement("div");
-    el.classList.add("item");
-    el.draggable = true;
-    el.dataset.item = item;
-    el.dataset.count = count;
-    el.dataset.context = context;
-    el.innerText = `${item} x${count}`;
-
-    el.addEventListener("dragstart", (e) => {
-        dragSource = { context, item, count };
-        e.dataTransfer.effectAllowed = "move";
-    });
-
-    el.addEventListener("dragend", () => {
-        dragSource = null;
-    });
-
-    return el;
-}
-
-function makeDropZone(element, onDropCallback) {
-    element.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-    });
-
-    element.addEventListener("drop", (e) => {
-        e.preventDefault();
-        if (!dragSource) return;
-        onDropCallback(dragSource);
-    });
-}
-
-function renderStorageItems(data, storageName) {
-    const storageList = document.getElementById("storage-items");
-    storageList.innerHTML = "";
-
-    const items = data.storages?.[storageName] || [];
-
-    items.forEach(it => {
-        storageList.appendChild(makeItemElement(it.name, it.count, "storage"));
-    });
-}
-
-function updateInventory(data) {
-    const playerList = document.getElementById("player-items");
-    const storageList = document.getElementById("storage-items");
-    const storageSelect = document.getElementById("storage-select");
-
-    playerList.innerHTML = "";
-    storageList.innerHTML = "";
-    storageSelect.innerHTML = "";
-
-    if (data.playerItems) {
-        data.playerItems.forEach(it => {
-            playerList.appendChild(makeItemElement(it.name, it.count, "player"));
-        });
-    }
-
-    Object.keys(data.storages || {}).forEach(storageName => {
-        const opt = document.createElement("option");
-        opt.value = storageName;
-        opt.innerText = storageName;
-        storageSelect.appendChild(opt);
-    });
-
-    storageSelect.onchange = () => {
-        renderStorageItems(data, storageSelect.value);
-    };
-
-    if (storageSelect.options.length > 0) {
-        storageSelect.selectedIndex = 0;
-        renderStorageItems(data, storageSelect.value);
-    }
-
-    makeDropZone(playerList, (src) => {
-        if (src.context === "storage") {
-            const amount = prompt("Withdraw amount:", src.count);
-            if (!amount) return;
-            post("lumber_inventory_withdraw", {
-                storage: storageSelect.value,
-                item: src.item,
-                amount: Number(amount)
-            });
+    if (data && data.action === 'open') {
+        openMainMenu();
+    } else if (data && data.action === 'close') {
+        closeUI();
+    } else if (data && data.action === 'updateLedger') {
+        if (typeof data.funds !== 'undefined') {
+            document.getElementById('ledger-funds').textContent = `$${data.funds}`;
         }
-    });
-
-    makeDropZone(storageList, (src) => {
-        if (src.context === "player") {
-            const amount = prompt("Deposit amount:", src.count);
-            if (!amount) return;
-            post("lumber_inventory_deposit", {
-                storage: storageSelect.value,
-                item: src.item,
-                amount: Number(amount)
-            });
+        if (typeof data.income !== 'undefined') {
+            document.getElementById('ledger-income').textContent = `$${data.income}`;
         }
-    });
-}
+    }
+});
