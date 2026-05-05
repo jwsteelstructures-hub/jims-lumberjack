@@ -92,14 +92,28 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-// NUI open/close from Lua (/lumbertest)
+// NUI open/close from Lua (Warmenu → NUI)
 window.addEventListener('message', (event) => {
     const data = event.data;
-    if (data && data.action === 'open') {
-        openMainMenu();
-    } else if (data && data.action === 'close') {
+
+    if (!data) return;
+
+    if (data.action === 'open') {
+        // Always unhide the root
+        root.classList.remove('hidden');
+
+        // If Warmenu sent a tab, open that panel directly
+        if (data.tab) {
+            openPanel(data.tab);
+        } else {
+            // Fallback: open main menu (legacy)
+            openMainMenu();
+        }
+
+    } else if (data.action === 'close') {
         closeUI();
-    } else if (data && data.action === 'updateLedger') {
+
+    } else if (data.action === 'updateLedger') {
         if (typeof data.funds !== 'undefined') {
             document.getElementById('ledger-funds').textContent = `$${data.funds}`;
         }
@@ -108,3 +122,4 @@ window.addEventListener('message', (event) => {
         }
     }
 });
+

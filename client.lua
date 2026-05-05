@@ -6,3 +6,16 @@ AddEventHandler("lumber:openUI", function()
     SetNuiFocus(true, true)
     SendNUIMessage({ action = "open" })
 end)
+
+RegisterCommand("lumbermenu", function()
+    OpenLumberMainMenu()
+end)
+
+RegisterNetEvent("lumber:openNUI")
+AddEventHandler("lumber:openNUI", function(tab)
+    SetNuiFocus(true, true)
+    SendNUIMessage({
+        action = "open",
+        tab = tab
+    })
+end)
