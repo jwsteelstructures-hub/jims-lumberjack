@@ -12,7 +12,7 @@ body {
     display: none !important;
 }
 
-/* ROOT PANEL - VORP STYLE */
+/* ROOT PANEL */
 
 #lumber-ui {
     position: absolute;
@@ -28,7 +28,7 @@ body {
     overflow: hidden;
 }
 
-/* HEADER - VORP STYLE */
+/* HEADER */
 
 .vorp-header {
     display: flex;
@@ -63,11 +63,10 @@ body {
     background: rgba(200, 80, 60, 0.9);
 }
 
-/* TABS - VORP STYLE */
+/* TABS */
 
 .vorp-tabs {
     display: flex;
-    justify-content: flex-start;
     gap: 4px;
     background: #111;
     padding: 6px 10px;
@@ -94,21 +93,11 @@ body {
     color: #f5e3c5;
 }
 
-.vorp-tabs .tab-btn:hover {
-    color: #f5e3c5;
-}
-
-/* CONTENT WRAPPER */
+/* CONTENT */
 
 .vorp-content {
     padding: 16px 20px 22px 20px;
     background: radial-gradient(circle at top, #252525, #101010);
-}
-
-/* TAB CONTENT */
-
-.tab {
-    animation: fadeIn 0.15s ease-out;
 }
 
 .tab-title {
@@ -145,29 +134,18 @@ body {
     gap: 4px;
 }
 
-.field-group label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #d9c3a0;
-}
-
-.field-group input,
-.field-group select {
+.field-group input {
     background: #151515;
     border: 1px solid #3a3a3a;
     color: #f5e3c5;
     padding: 6px 8px;
     border-radius: 3px;
-    font-family: inherit;
 }
 
-/* BUTTONS - VORP STYLE */
+/* BUTTONS */
 
 .primary-btn,
-.secondary-btn,
-#ledger-deposit-btn,
-#ledger-withdraw-btn {
+.secondary-btn {
     background: #252525;
     border: 1px solid #c9a15b;
     color: #f5e3c5;
@@ -184,34 +162,11 @@ body {
 }
 
 .primary-btn:hover,
-.secondary-btn:hover,
-#ledger-deposit-btn:hover,
-#ledger-withdraw-btn:hover {
+.secondary-btn:hover {
     background: #3a3a3a;
 }
 
-/* UPGRADES */
-
-.upgrade-section {
-    margin-bottom: 12px;
-}
-
-.upgrade-section h3 {
-    margin: 4px 0 6px 0;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* STABLES */
-
-.button-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-
-/* INVENTORY - VORP STYLE */
+/* INVENTORY */
 
 #inventory-container {
     display: flex;
@@ -227,13 +182,6 @@ body {
     border-radius: 4px;
 }
 
-.inventory-box h3 {
-    margin: 0 0 6px 0;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
 .item-list {
     height: 320px;
     overflow-y: auto;
@@ -243,15 +191,11 @@ body {
     border: 1px solid #2a2a2a;
 }
 
-/* Satchel-style grid */
-
 .item-list.grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 6px;
 }
-
-/* Item - VORP STYLE */
 
 .item {
     padding: 6px;
@@ -261,42 +205,15 @@ body {
     font-size: 11px;
     text-align: center;
     cursor: grab;
-    transition: background 0.1s, transform 0.1s, border-color 0.1s;
     color: #f5e3c5;
 }
 
 .item:hover {
     background: #303030;
     border-color: #c9a15b;
-    transform: translateY(-1px);
-}
-
-.item:active {
-    cursor: grabbing;
-}
-
-/* SCROLLBAR - VORP STYLE */
-
-.item-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.item-list::-webkit-scrollbar-track {
-    background: #101010;
-}
-
-.item-list::-webkit-scrollbar-thumb {
-    background: #3a3a3a;
 }
 
 /* ANIMATIONS */
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* VORP FADE IN/OUT */
 
 .vorp-fade-in {
     animation: vorpFadeIn 0.15s ease-out forwards;

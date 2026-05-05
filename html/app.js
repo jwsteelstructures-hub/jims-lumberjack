@@ -29,12 +29,12 @@ window.addEventListener("message", function (event) {
         openUI(data.data);
     }
 
-    if (data.action === "lumber_switch_tab") {
-        switchTab(data.tab);
-    }
-
     if (data.action === "lumber_open_ledger") {
         updateLedger(data.data);
+    }
+
+    if (data.action === "lumber_open_inventory") {
+        updateInventory(data.data);
     }
 
     if (data.action === "lumber_open_upgrades") {
@@ -43,10 +43,6 @@ window.addEventListener("message", function (event) {
 
     if (data.action === "lumber_open_stables") {
         updateStables(data.data);
-    }
-
-    if (data.action === "lumber_open_inventory") {
-        updateInventory(data.data);
     }
 });
 
@@ -90,9 +86,7 @@ document.getElementById("ledger-withdraw-btn").addEventListener("click", () => {
 
 /* UPGRADES */
 
-function updateUpgrades(data) {
-    // later: highlight unlocked upgrades
-}
+function updateUpgrades(data) {}
 
 document.getElementById("upgrade-office-btn").addEventListener("click", () => {
     post("lumber_upgrade_office", {});
@@ -109,9 +103,7 @@ document.querySelectorAll("#upgrades button[data-upgrade]").forEach(btn => {
 
 /* STABLES */
 
-function updateStables(data) {
-    // later: show owned wagons, stables phase, etc.
-}
+function updateStables(data) {}
 
 document.getElementById("upgrade-stables-btn").addEventListener("click", () => {
     post("lumber_upgrade_stables", {});
@@ -129,7 +121,7 @@ document.getElementById("set-wagon-spawn-btn").addEventListener("click", () => {
 
 /* INVENTORY */
 
-let dragSource = null; // { context: "player" | "storage", item, count }
+let dragSource = null;
 
 function makeItemElement(item, count, context) {
     const el = document.createElement("div");
@@ -209,25 +201,4 @@ function updateInventory(data) {
     });
 
     makeDropZone(storageList, (src) => {
-        if (src.context === "player") {
-            const amount = prompt("Deposit amount:", src.count);
-            if (!amount) return;
-            post("lumber_inventory_deposit", {
-                storage: storageSelect.value,
-                item: src.item,
-                amount: Number(amount)
-            });
-        }
-    });
-}
-
-function renderStorageItems(data, storageName) {
-    const storageList = document.getElementById("storage-items");
-    storageList.innerHTML = "";
-
-    const storage = (data.storages && data.storages[storageName]) || { items: [] };
-
-    (storage.items || []).forEach(it => {
-        storageList.appendChild(makeItemElement(it.name, it.count, "storage"));
-    });
-}
+        if (src.context === "player")
