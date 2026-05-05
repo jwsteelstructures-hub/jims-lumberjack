@@ -2,31 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lumber Company</title>
+    <title>Lumber Company Ledger</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="lumber-ui" class="hidden">
+<div id="lumber-ui" class="hidden vorp-fade-out">
 
     <!-- HEADER -->
-    <div id="header">
+    <div id="header" class="vorp-header">
         <div id="company-name">LUMBER COMPANY LEDGER</div>
-        <div id="close-btn">X</div>
+        <button id="close-btn" class="vorp-close-btn">×</button>
     </div>
 
     <!-- TAB BUTTONS -->
-    <div id="tabs">
-        <button class="tab-btn active" data-tab="ledger" data-icon="★">Ledger</button>
-        <button class="tab-btn" data-tab="upgrades" data-icon="▲">Upgrades</button>
-        <button class="tab-btn" data-tab="stables" data-icon="♞">Stables</button>
-        <button class="tab-btn" data-tab="inventory" data-icon="☰">Inventory</button>
-        <button class="tab-btn" data-tab="shop" data-icon="$">Shop Front</button>
-        <button class="tab-btn" data-tab="delivery" data-icon="✉">Delivery</button>
+    <div id="tabs" class="vorp-tabs">
+        <button class="tab-btn active" data-tab="ledger">Ledger</button>
+        <button class="tab-btn" data-tab="upgrades">Upgrades</button>
+        <button class="tab-btn" data-tab="stables">Stables</button>
+        <button class="tab-btn" data-tab="inventory">Inventory</button>
     </div>
 
     <!-- TAB CONTENT -->
-    <div id="tab-content">
+    <div id="tab-content" class="vorp-content">
 
         <!-- LEDGER TAB -->
         <div id="ledger" class="tab">
@@ -46,13 +44,13 @@
                 <div class="field-group">
                     <label>Deposit</label>
                     <input id="ledger-deposit-amount" type="number" placeholder="Amount">
-                    <button id="ledger-deposit-btn">Confirm</button>
+                    <button id="ledger-deposit-btn" class="primary-btn">Confirm</button>
                 </div>
 
                 <div class="field-group">
                     <label>Withdraw</label>
                     <input id="ledger-withdraw-amount" type="number" placeholder="Amount">
-                    <button id="ledger-withdraw-btn">Confirm</button>
+                    <button id="ledger-withdraw-btn" class="primary-btn">Confirm</button>
                 </div>
             </div>
         </div>
@@ -123,58 +121,6 @@
                     <div class="item-list grid" id="storage-items"></div>
                 </div>
             </div>
-        </div>
-
-        <!-- SHOP FRONT TAB -->
-        <div id="shop" class="tab hidden">
-            <h2 class="tab-title">Shop Front</h2>
-            <div class="divider"></div>
-
-            <div id="shop-container">
-                <div id="shop-player" class="inventory-box">
-                    <h3>Your Satchel</h3>
-                    <div class="item-list grid" id="shop-player-items"></div>
-                </div>
-
-                <div id="shop-storage" class="inventory-box">
-                    <h3>Shop Inventory</h3>
-                    <div class="item-list grid" id="shop-storage-items"></div>
-                </div>
-
-                <div id="shop-price-box">
-                    <label>Set Price</label>
-                    <input id="shop-price-input" type="number" placeholder="Price per item">
-                    <button id="shop-set-price-btn" class="primary-btn">Apply</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- DELIVERY TAB -->
-        <div id="delivery" class="tab hidden">
-            <h2 class="tab-title">Delivery</h2>
-            <div class="divider"></div>
-
-            <div class="field-group">
-                <label>Wagon</label>
-                <select id="delivery-wagon-select">
-                    <option value="lumber">Lumber Wagon</option>
-                    <option value="sap">Sap Wagon</option>
-                    <option value="cargo">Cargo Wagon</option>
-                </select>
-            </div>
-
-            <div class="field-group">
-                <label>Load Type</label>
-                <select id="delivery-species-select">
-                    <option value="oak">Oak Logs</option>
-                    <option value="pine">Pine Logs</option>
-                    <option value="maple">Maple Logs</option>
-                    <option value="cedar">Cedar Logs</option>
-                    <option value="sap">Sap Barrels</option>
-                </select>
-            </div>
-
-            <button id="start-delivery-btn" class="primary-btn">Start Delivery</button>
         </div>
 
     </div>

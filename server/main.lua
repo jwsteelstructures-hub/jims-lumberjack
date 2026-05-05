@@ -1,168 +1,243 @@
 print("SERVER MAIN LOADED")
 
-local Camp = {}
-local json = json or require("json") -- adjust if needed
+-----------------------------------------
+-- VORP CORE + INVENTORY
+-----------------------------------------
 
--- Simple DB helpers (replace with your wrapper if needed)
-local function fetchAll(query, params, cb)
-    exports.oxmysql:execute(query, params, cb)
+local VorpCore = {}
+TriggerEvent("getCore", function(core) VorpCore = core end)
+
+local Inventory = exports.vorp_inventory
+local ox = exports.oxmysql
+
+local CAMP_ID = Config.CampId or "lumber_1"
+local CAMP_NAME = Config.CampName or "Lumber Company"
+
+
+-----------------------------------------
+-- SQL HELPERS
+-----------------------------------------
+
+local function fetch(query, params, cb)
+    ox:execute(query, params, function(result)
+        cb(result)
+    end)
 end
 
 local function fetchScalar(query, params, cb)
-    exports.oxmysql:scalar(query, params, cb)
+    ox:scalar(query, params, function(result)
+        cb(result)
+    end)
 end
 
-local function execute(query, params, cb)
-    exports.oxmysql:execute(query, params, cb)
+local function exec(query, params)
+    ox:execute(query, params)
 end
 
--- Ensure camp exists
+
+-----------------------------------------
+-- ENSURE CAMP EXISTS
+-----------------------------------------
+
 local function ensureCamp()
-    fetchScalar("SELECT id FROM lumber_camps WHERE camp_id = ?", { Config.CampId }, function(id)
+    fetchScalar("SELECT id FROM lumber_camps WHERE camp_id = ?", { CAMP_ID }, function(id)
         if not id then
-            execute([[
-                INSERT INTO lumber_camps (camp_id, name, owner_identifier, funds)
-                VALUES (?, ?, ?, ?)
-            ]], { Config.CampId, Config.CampName, "none", 0 })
+            exec([[
+                INSERT INTO lumber_camps (camp_id, name, owner_identifier, funds, income_from_deliveries, office_phase, stables_phase)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ]], { CAMP_ID, CAMP_NAME, "none", 0, 0, 1, 0 })
+            print("[LUMBER] Created new camp:", CAMP_ID)
         end
     end)
 end
 
--- Player helpers
-local function getPlayerIdentifier(src)
-    for _, id in ipairs(GetPlayerIdentifiers(src)) do
-        if id:sub(1, 5) == "steam" or id:sub(1, 7) == "license" then
-            return id
+CreateThread(ensureCamp)
+
+
+-----------------------------------------
+-- LEDGER DATA PACKAGE (SIMPLE VERSION)
+-----------------------------------------
+
+local function buildLedgerData(src, cb)
+    fetch("SELECT funds, income_from_deliveries FROM lumber_camps WHERE camp_id = ?", { CAMP_ID }, function(rows)
+        local camp = rows[1] or {}
+        cb({
+            funds = camp.funds or 0,
+            income = camp.income_from_deliveries or 0
+        })
+    end)
+end
+
+
+-----------------------------------------
+-- INVENTORY DATA PACKAGE
+-----------------------------------------
+
+local function buildInventoryData(src, cb)
+    local playerItems = Inventory:getUserInventory(src)
+
+    fetch("SELECT item, amount FROM lumber_storages WHERE camp_id = ?", { CAMP_ID }, function(rows)
+        local storage = {}
+
+        for _, row in ipairs(rows) do
+            storage[row.item] = storage[row.item] or { items = {} }
+            table.insert(storage[row.item].items, {
+                name = row.item,
+                count = row.amount
+            })
         end
-    end
-    return GetPlayerIdentifier(src, 0)
-end
 
-local function getCharacterInfo(src)
-    -- VORP hook here if present
-    local name = GetPlayerName(src) or "Unknown"
-    local charId = src
-    return name, charId
-end
-
--- Data fetchers
-local function getCampData(cb)
-    fetchAll("SELECT * FROM lumber_camps WHERE camp_id = ?", { Config.CampId }, function(rows)
-        if not rows or not rows[1] then cb(nil) return end
-        cb(rows[1])
+        cb({
+            playerItems = playerItems,
+            storages = storage
+        })
     end)
 end
 
-local function getWorkers(cb)
-    fetchAll("SELECT * FROM lumber_workers WHERE camp_id = ?", { Config.CampId }, function(rows)
-        cb(rows or {})
-    end)
-end
 
-local function getStables(cb)
-    fetchAll("SELECT * FROM lumber_stables WHERE camp_id = ?", { Config.CampId }, function(rows)
-        cb(rows[1] or { phase = 0 })
-    end)
-end
+-----------------------------------------
+-- LEDGER: DEPOSIT
+-----------------------------------------
 
-local function getStorages(cb)
-    fetchAll("SELECT * FROM lumber_storages WHERE camp_id = ?", { Config.CampId }, function(rows)
-        cb(rows or {})
-    end)
-end
-
-local function getWagons(cb)
-    fetchAll("SELECT * FROM lumber_wagons WHERE camp_id = ?", { Config.CampId }, function(rows)
-        cb(rows or {})
-    end)
-end
-
-local function getShopFront(cb)
-    fetchAll("SELECT * FROM lumber_shopfront WHERE camp_id = ?", { Config.CampId }, function(rows)
-        cb(rows[1] or nil)
-    end)
-end
-
--- Ledger builder
-local function buildLedgerData(cb)
-    getCampData(function(camp)
-        if not camp then cb(nil) return end
-
-        getWorkers(function(workers)
-            getStables(function(stables)
-                getStorages(function(storages)
-                    getWagons(function(wagons)
-                        getShopFront(function(shop)
-
-                            local workerList = {}
-                            for _, w in ipairs(workers) do
-                                workerList[#workerList+1] = {
-                                    identifier = w.identifier,
-                                    characterName = w.character_name,
-                                    characterId = w.character_id,
-                                    rank = w.rank
-                                }
-                            end
-
-                            local stablesPhase = stables.phase or 0
-
-                            local stablesData = {
-                                phase = stablesPhase,
-                                spawn = stables.spawn_x and {
-                                    x = stables.spawn_x,
-                                    y = stables.spawn_y,
-                                    z = stables.spawn_z,
-                                    heading = stables.spawn_heading
-                                } or nil,
-                                ownedWagons = {},
-                                availableWagons = Config.Wagons
-                            }
-
-                            for _, w in ipairs(wagons) do
-                                stablesData.ownedWagons[#stablesData.ownedWagons+1] = {
-                                    id = w.id,
-                                    type = w.type,
-                                    health = w.health
-                                }
-                            end
-
-                            local ledger = {
-                                campId = Config.CampId,
-                                companyName = camp.name,
-                                ownerIdentifier = camp.owner_identifier,
-                                funds = camp.funds,
-                                incomeFromDeliveries = camp.income_from_deliveries,
-
-                                phase = camp.office_phase,
-                                stablesPhase = camp.stables_phase,
-
-                                workers = workerList,
-                                stables = stablesData,
-
-                                shopFront = shop and {
-                                    capacity = shop.capacity
-                                } or nil
-                            }
-
-                            cb(ledger)
-
-                        end)
-                    end)
-                end)
-            end)
-        end)
-    end)
-end
-
--- Events
-RegisterNetEvent("lumber:requestLedgerData", function()
-    print("SERVER RECEIVED lumber:requestLedgerData")
+RegisterNetEvent("lumber_ledger_deposit", function(data)
     local src = source
-    buildLedgerData(function(data)
-        if not data then return end
-        TriggerClientEvent("lumber:receiveLedgerData", src, data)
+    local amount = tonumber(data.amount)
+    if not amount or amount <= 0 then return end
+
+    local Character = VorpCore.getUser(src).getUsedCharacter()
+    if Character.getCurrency(0) < amount then return end
+
+    Character.removeCurrency(0, amount)
+
+    exec("UPDATE lumber_camps SET funds = funds + ? WHERE camp_id = ?", {
+        amount, CAMP_ID
+    })
+
+    buildLedgerData(src, function(pkg)
+        TriggerClientEvent("lumber_open_ledger", src, pkg)
     end)
 end)
 
--- Startup
-CreateThread(ensureCamp)
+
+-----------------------------------------
+-- LEDGER: WITHDRAW
+-----------------------------------------
+
+RegisterNetEvent("lumber_ledger_withdraw", function(data)
+    local src = source
+    local amount = tonumber(data.amount)
+    if not amount or amount <= 0 then return end
+
+    fetchScalar("SELECT funds FROM lumber_camps WHERE camp_id = ?", { CAMP_ID }, function(funds)
+        if not funds or funds < amount then return end
+
+        exec("UPDATE lumber_camps SET funds = funds - ? WHERE camp_id = ?", {
+            amount, CAMP_ID
+        })
+
+        local Character = VorpCore.getUser(src).getUsedCharacter()
+        Character.addCurrency(0, amount)
+
+        buildLedgerData(src, function(pkg)
+            TriggerClientEvent("lumber_open_ledger", src, pkg)
+        end)
+    end)
+end)
+
+
+-----------------------------------------
+-- INVENTORY: DEPOSIT ITEM
+-----------------------------------------
+
+RegisterNetEvent("lumber_inventory_deposit", function(data)
+    local src = source
+    local item = data.item
+    local amount = tonumber(data.amount)
+    if not item or not amount or amount <= 0 then return end
+
+    if Inventory:subItem(src, item, amount) then
+        exec([[
+            INSERT INTO lumber_storages (camp_id, item, amount)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE amount = amount + ?
+        ]], { CAMP_ID, item, amount, amount })
+    end
+
+    buildInventoryData(src, function(pkg)
+        TriggerClientEvent("lumber_open_inventory", src, pkg)
+    end)
+end)
+
+
+-----------------------------------------
+-- INVENTORY: WITHDRAW ITEM
+-----------------------------------------
+
+RegisterNetEvent("lumber_inventory_withdraw", function(data)
+    local src = source
+    local item = data.item
+    local amount = tonumber(data.amount)
+    if not item or not amount or amount <= 0 then return end
+
+    fetchScalar("SELECT amount FROM lumber_storages WHERE camp_id = ? AND item = ?", {
+        CAMP_ID, item
+    }, function(stored)
+        if not stored or stored < amount then return end
+
+        exec("UPDATE lumber_storages SET amount = amount - ? WHERE camp_id = ? AND item = ?", {
+            amount, CAMP_ID, item
+        })
+
+        Inventory:addItem(src, item, amount)
+
+        buildInventoryData(src, function(pkg)
+            TriggerClientEvent("lumber_open_inventory", src, pkg)
+        end)
+    end)
+end)
+
+
+-----------------------------------------
+-- NUI CALLBACKS
+-----------------------------------------
+
+RegisterNUICallback("lumber_ui_close", function(_, cb)
+    SetNuiFocus(false, false)
+    cb({})
+end)
+
+RegisterNUICallback("lumber_ui_switch_tab", function(data, cb)
+    local src = source
+    local tab = data.tab
+
+    if tab == "ledger" then
+        buildLedgerData(src, function(pkg)
+            TriggerClientEvent("lumber_open_ledger", src, pkg)
+        end)
+
+    elseif tab == "inventory" then
+        buildInventoryData(src, function(pkg)
+            TriggerClientEvent("lumber_open_inventory", src, pkg)
+        end)
+
+    elseif tab == "upgrades" then
+        TriggerClientEvent("lumber_open_upgrades", src, {})
+
+    elseif tab == "stables" then
+        TriggerClientEvent("lumber_open_stables", src, {})
+    end
+
+    cb({})
+end)
+
+
+-----------------------------------------
+-- TEST COMMAND
+-----------------------------------------
+
+RegisterCommand("lumbertest", function(src)
+    buildLedgerData(src, function(pkg)
+        TriggerClientEvent("lumber_open", src, pkg)
+        SetNuiFocus(true, true)
+    end)
+end)
