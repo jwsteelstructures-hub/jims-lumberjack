@@ -245,9 +245,7 @@ end)
 -- TEST COMMAND
 -----------------------------------------
 
-RegisterCommand("lumbertest", function(src)
-    buildLedgerData(src, function(pkg)
-        TriggerClientEvent("lumber:receiveLedgerData", src, pkg)
-        SetNuiFocus(true, true)
-    end)
+RegisterCommand("lumbertest", function(source)
+    print("LUMBERTES COMMAND FIRED")
+    TriggerClientEvent("lumber:openUI", source)
 end)
