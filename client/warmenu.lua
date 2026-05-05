@@ -1,33 +1,38 @@
-local Warmenu = exports.warmenu
+-- Warmenu Main Menu for Lumber Company (RedM version)
+-- Uses the RalivTV Warmenu fork (global WarMenu table)
 
 function OpenLumberMainMenu()
-    Warmenu.CreateMenu('lumber_main', 'Lumber Company')
-    Warmenu.SetSubTitle('lumber_main', 'Select an option')
-    Warmenu.OpenMenu('lumber_main')
+    -- Create the main menu
+    WarMenu.CreateMenu('lumber_main', 'Lumber Company')
+    WarMenu.SetSubTitle('lumber_main', 'Select an option')
 
-    while Warmenu.IsMenuOpened('lumber_main') do
+    -- Open it
+    WarMenu.OpenMenu('lumber_main')
 
-        if Warmenu.Button('Ledger') then
-            Warmenu.CloseMenu()
+    -- Menu loop
+    while WarMenu.IsMenuOpened('lumber_main') do
+
+        if WarMenu.Button('Ledger') then
+            WarMenu.CloseMenu()
             TriggerEvent('lumber:openNUI', 'ledger')
         end
 
-        if Warmenu.Button('Upgrades') then
-            Warmenu.CloseMenu()
+        if WarMenu.Button('Upgrades') then
+            WarMenu.CloseMenu()
             TriggerEvent('lumber:openNUI', 'upgrades')
         end
 
-        if Warmenu.Button('Manage Workers') then
-            Warmenu.CloseMenu()
+        if WarMenu.Button('Manage Workers') then
+            WarMenu.CloseMenu()
             TriggerEvent('lumber:openNUI', 'workers')
         end
 
-        if Warmenu.Button('Inventory') then
-            Warmenu.CloseMenu()
+        if WarMenu.Button('Inventory') then
+            WarMenu.CloseMenu()
             TriggerEvent('lumber:openNUI', 'inventory')
         end
 
-        Warmenu.Display()
+        WarMenu.Display()
         Wait(0)
     end
 end
