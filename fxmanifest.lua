@@ -48,4 +48,5 @@ files {
     'html/index.html',
     'html/style.css',
     'html/app.js'
+    'data/trees.json',
 }
