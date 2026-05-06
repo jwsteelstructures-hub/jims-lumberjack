@@ -111,8 +111,7 @@ end)
 --========================================================--
 --  INITIAL SYNC ON PLAYER JOIN
 --========================================================--
-CreateThread(function()
-    Wait(1500)
+AddEventHandler("vorp:SelectedCharacter", function()
     TriggerServerEvent("jims-lumberjack:requestSync")
 end)
 
