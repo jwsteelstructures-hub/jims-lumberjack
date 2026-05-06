@@ -1,244 +1,162 @@
 {
-    "trees": {
-        "9": {
-            "coords": [
-                -1352.4703369140626,
-                -249.1937255859375,
-                101.48395538330078
-            ],
-            "species": "oak",
-            "id": 9,
-            "heading": 48.25899124145508,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "8": {
-            "coords": [
-                -1337.681640625,
-                -247.3174743652344,
-                103.01034545898438
-            ],
-            "species": "oak",
-            "id": 8,
-            "heading": 29.05174446105957,
-            "model": "treefall_flat_start",
-            "state": "ready"
-        },
-        "7": {
-            "coords": [
-                -1337.7491455078126,
-                -259.0171203613281,
-                103.5922393798828
-            ],
-            "species": "oak",
-            "id": 7,
-            "heading": 177.99978637695313,
-            "model": "treefall_flat_start",
-            "state": "ready"
-        },
-        "6": {
-            "coords": [
-                -1346.4669189453126,
-                -235.933349609375,
-                102.43214416503906
-            ],
-            "species": "oak",
-            "id": 6,
-            "heading": 22.12860298156738,
-            "model": "treefall_flat_start",
-            "state": "ready"
-        },
-        "5": {
-            "coords": [
-                -1446.3104248046876,
-                -249.5182647705078,
-                101.6165008544922
-            ],
-            "species": "pine",
-            "id": 5,
-            "heading": -65.00579071044922,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "4": {
-            "coords": [
-                -1454.4998779296876,
-                -226.6999969482422,
-                102.80886840820313
-            ],
-            "species": "pine",
-            "id": 4,
-            "heading": -91.70004272460938,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "3": {
-            "coords": [
-                -1467.4000244140626,
-                -185.8000030517578,
-                104.35800170898438
-            ],
-            "species": "pine",
-            "id": 3,
-            "heading": 39.31940460205078,
-            "model": "treefall_flat_start",
-            "state": "ready"
-        },
-        "2": {
-            "coords": [
-                -1429.3206787109376,
-                -195.9761657714844,
-                100.56727600097656
-            ],
-            "species": "pine",
-            "id": 2,
-            "heading": 60.87430953979492,
-            "model": "treefall_flat_start",
-            "state": "ready"
-        },
-        "1": {
-            "coords": [
-                -1421.7000732421876,
-                -190.3999938964844,
-                100.00299072265624
-            ],
-            "species": "pine",
-            "id": 1,
-            "heading": 100.52349853515624,
-            "model": "treefall_flat_start",
-            "state": "ready"
-        },
-        "14": {
-            "coords": [
-                -1422.5908203125,
-                -305.2597961425781,
-                107.28351593017578
-            ],
-            "species": "maple",
-            "id": 14,
-            "heading": -59.62905883789062,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "13": {
-            "coords": [
-                -1437.3690185546876,
-                -273.13323974609377,
-                104.51802825927736
-            ],
-            "species": "maple",
-            "id": 13,
-            "heading": -41.95719909667969,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "20": {
-            "coords": [
-                -1525.339111328125,
-                -213.53868103027345,
-                114.06404113769533
-            ],
-            "species": "cedar",
-            "id": 20,
-            "heading": -32.70242309570312,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "11": {
-            "coords": [
-                -1404.8231201171876,
-                -276.7412109375,
-                100.00743865966796
-            ],
-            "species": "maple",
-            "id": 11,
-            "heading": -58.28652191162109,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "19": {
-            "coords": [
-                -1524.1650390625,
-                -193.41539001464845,
-                111.34039306640624
-            ],
-            "species": "cedar",
-            "id": 19,
-            "heading": -151.364013671875,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "10": {
-            "coords": [
-                -1359.1546630859376,
-                -255.96063232421876,
-                99.81584930419922
-            ],
-            "species": "oak",
-            "id": 10,
-            "heading": 96.44135284423828,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "12": {
-            "coords": [
-                -1426.3912353515626,
-                -282.2173461914063,
-                105.19715118408205
-            ],
-            "species": "maple",
-            "id": 12,
-            "heading": -74.6212158203125,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "17": {
-            "coords": [
-                -1509.9010009765626,
-                -211.1470947265625,
-                111.66355895996094
-            ],
-            "species": "cedar",
-            "id": 17,
-            "heading": -17.43038368225097,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "18": {
-            "coords": [
-                -1498.6610107421876,
-                -180.12551879882813,
-                109.10894012451172
-            ],
-            "species": "cedar",
-            "id": 18,
-            "heading": -111.55517578125,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "15": {
-            "coords": [
-                -1451.87109375,
-                -287.3277282714844,
-                112.35350799560549
-            ],
-            "species": "maple",
-            "id": 15,
-            "heading": -74.24591827392578,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        },
-        "16": {
-            "coords": [
-                -1491.4405517578126,
-                -240.4868621826172,
-                112.5416030883789
-            ],
-            "species": "cedar",
-            "id": 16,
-            "heading": -85.26333618164063,
-            "model": "des_treefall_up15_start",
-            "state": "ready"
-        }
-    }
+  "1": {
+    "id": 1,
+    "species": "pine",
+    "model": "treefall_flat_start",
+    "coords": [-1421.7000732421875, -190.39999389648438, 100.00299072265625],
+    "heading": 100.52349853515625,
+    "state": "ready"
+  },
+  "2": {
+    "id": 2,
+    "species": "pine",
+    "model": "treefall_flat_start",
+    "coords": [-1429.3206787109375, -195.97616577148438, 100.56727600097656],
+    "heading": 60.87430953979492,
+    "state": "ready"
+  },
+  "3": {
+    "id": 3,
+    "species": "pine",
+    "model": "treefall_flat_start",
+    "coords": [-1467.4000244140625, -185.8000030517578, 104.35800170898438],
+    "heading": 39.31940460205078,
+    "state": "ready"
+  },
+  "4": {
+    "id": 4,
+    "species": "pine",
+    "model": "des_treefall_up15_start",
+    "coords": [-1454.4998779296875, -226.6999969482422, 102.80886840820312],
+    "heading": -91.70004272460938,
+    "state": "ready"
+  },
+  "5": {
+    "id": 5,
+    "species": "pine",
+    "model": "des_treefall_up15_start",
+    "coords": [-1446.3104248046875, -249.5182647705078, 101.61650085449219],
+    "heading": -65.00579071044922,
+    "state": "ready"
+  },
+  "6": {
+    "id": 6,
+    "species": "oak",
+    "model": "treefall_flat_start",
+    "coords": [-1346.4669189453125, -235.933349609375, 102.43214416503906],
+    "heading": 22.12860298156738,
+    "state": "ready"
+  },
+  "7": {
+    "id": 7,
+    "species": "oak",
+    "model": "treefall_flat_start",
+    "coords": [-1337.7491455078125, -259.0171203613281, 103.59223937988281],
+    "heading": 177.99978637695312,
+    "state": "ready"
+  },
+  "8": {
+    "id": 8,
+    "species": "oak",
+    "model": "treefall_flat_start",
+    "coords": [-1337.681640625, -247.31747436523438, 103.01034545898438],
+    "heading": 29.05174446105957,
+    "state": "ready"
+  },
+  "9": {
+    "id": 9,
+    "species": "oak",
+    "model": "des_treefall_up15_start",
+    "coords": [-1352.4703369140625, -249.1937255859375, 101.48395538330078],
+    "heading": 48.25899124145508,
+    "state": "ready"
+  },
+  "10": {
+    "id": 10,
+    "species": "oak",
+    "model": "des_treefall_up15_start",
+    "coords": [-1359.1546630859375, -255.96063232421875, 99.81584930419922],
+    "heading": 96.44135284423828,
+    "state": "ready"
+  },
+  "11": {
+    "id": 11,
+    "species": "maple",
+    "model": "des_treefall_up15_start",
+    "coords": [-1404.8231201171875, -276.7412109375, 100.00743865966797],
+    "heading": -58.28652191162109,
+    "state": "ready"
+  },
+  "12": {
+    "id": 12,
+    "species": "maple",
+    "model": "des_treefall_up15_start",
+    "coords": [-1426.3912353515625, -282.21734619140625, 105.19715118408203],
+    "heading": -74.6212158203125,
+    "state": "ready"
+  },
+  "13": {
+    "id": 13,
+    "species": "maple",
+    "model": "des_treefall_up15_start",
+    "coords": [-1437.3690185546875, -273.13323974609375, 104.51802825927734],
+    "heading": -41.95719909667969,
+    "state": "ready"
+  },
+  "14": {
+    "id": 14,
+    "species": "maple",
+    "model": "des_treefall_up15_start",
+    "coords": [-1422.5908203125, -305.2597961425781, 107.28351593017578],
+    "heading": -59.62905883789062,
+    "state": "ready"
+  },
+  "15": {
+    "id": 15,
+    "species": "maple",
+    "model": "des_treefall_up15_start",
+    "coords": [-1451.87109375, -287.3277282714844, 112.35350799560547],
+    "heading": -74.24591827392578,
+    "state": "ready"
+  },
+  "16": {
+    "id": 16,
+    "species": "cedar",
+    "model": "des_treefall_up15_start",
+    "coords": [-1491.4405517578125, -240.4868621826172, 112.5416030883789],
+    "heading": -85.26333618164062,
+    "state": "ready"
+  },
+  "17": {
+    "id": 17,
+    "species": "cedar",
+    "model": "des_treefall_up15_start",
+    "coords": [-1509.9010009765625, -211.1470947265625, 111.66355895996094],
+    "heading": -17.43038368225097,
+    "state": "ready"
+  },
+  "18": {
+    "id": 18,
+    "species": "cedar",
+    "model": "des_treefall_up15_start",
+    "coords": [-1498.6610107421875, -180.12551879882812, 109.10894012451172],
+    "heading": -111.55517578125,
+    "state": "ready"
+  },
+  "19": {
+    "id": 19,
+    "species": "cedar",
+    "model": "des_treefall_up15_start",
+    "coords": [-1524.1650390625, -193.41539001464844, 111.34039306640625],
+    "heading": -151.364013671875,
+    "state": "ready"
+  },
+  "20": {
+    "id": 20,
+    "species": "cedar",
+    "model": "des_treefall_up15_start",
+    "coords": [-1525.339111328125, -213.53868103027344, 114.06404113769531],
+    "heading": -32.70242309570312,
+    "state": "ready"
+  }
 }
