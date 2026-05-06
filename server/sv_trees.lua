@@ -72,32 +72,36 @@ end)
 --========================================================--
 --  AUTO-RESPAWN CHECK ON RESOURCE START
 --========================================================--
-CreateThread(function()
-    Wait(1000)
+AddEventHandler("onResourceStart", function(res)
+    if res ~= GetCurrentResourceName() then return end
 
-    for id, tree in pairs(data.trees) do
-        if tree.state == "cooldown" and tree.respawn then
-            local remaining = tree.respawn - os.time()
+    CreateThread(function()
+        Wait(1000)
 
-            if remaining <= 0 then
-                -- Respawn immediately
-                tree.state = "ready"
-                tree.respawn = nil
-            else
-                -- Schedule respawn
-                CreateThread(function()
-                    Wait(remaining * 1000)
+        for id, tree in pairs(data.trees) do
+            if tree.state == "cooldown" and tree.respawn then
+                local remaining = tree.respawn - os.time()
+
+                if remaining <= 0 then
+                    -- Respawn immediately
                     tree.state = "ready"
                     tree.respawn = nil
-                    SaveTrees()
-                    SyncTrees()
-                end)
+                else
+                    -- Schedule respawn
+                    CreateThread(function()
+                        Wait(remaining * 1000)
+                        tree.state = "ready"
+                        tree.respawn = nil
+                        SaveTrees()
+                        SyncTrees()
+                    end)
+                end
             end
         end
-    end
 
-    SaveTrees()
-    SyncTrees()
+        SaveTrees()
+        SyncTrees()
+    end)
 end)
 
 --========================================================--
