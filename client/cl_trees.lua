@@ -248,24 +248,29 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
 
     DeleteObject(obj)
 
-   --========================================================--
---  MODEL-SPECIFIC ALIGNMENT FIX (UPDATED)
---========================================================--
-local endOffsetX = 0.0
-local endOffsetY = 0.0
+    --========================================================--
+    --  MODEL-SPECIFIC ALIGNMENT FIX
+    --========================================================--
+    local endOffsetX = -1.0   -- shifted left by 1 meter
+    local endOffsetY = -0.8
 
-if endModel == "treefall_flat_end" then
-    endOffsetX = -1.0   -- shifted left by 1 meter
-    endOffsetY = -0.8
-elseif endModel == "des_treefall_up15_end" then
-    endOffsetX = -1.0   -- same correction for this model
-    endOffsetY = -1.2
-end
+    if endModel == "des_treefall_up15_end" then
+        endOffsetX = -1.0
+        endOffsetY = -1.2
+    end
 
--- Rotate offsets into world space
-local finalX = impactX + forwardX * endOffsetY + forwardY * endOffsetX
-local finalY = impactY + forwardY * endOffsetY + forwardX * endOffsetX
+    -- Rotate offsets into world space
+    local finalX = impactX + forwardX * endOffsetY + forwardY * endOffsetX
+    local finalY = impactY + forwardY * endOffsetY + forwardX * endOffsetX
 
+    -- Spawn corrected fallen model
+    local fallen = CreateObjectNoOffset(endHash, finalX, finalY, tree.z, false, false, false)
+    SetEntityHeading(fallen, tree.heading)
+    FreezeEntityPosition(fallen, true)
+
+    Wait(5000)
+    DeleteObject(fallen)
+end)
 
 --========================================================--
 --  DEBUG: TEST FALL COMMAND
