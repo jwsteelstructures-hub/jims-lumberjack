@@ -6,17 +6,13 @@ local chopping = false
 local currentTree = nil
 local hitCount = 0
 
--- Tracks all spawned tree objects so we can delete/replace them
 local SpawnedTrees = {}
 
---========================================================--
---  CONFIG + TREE DATA (CLIENT-SIDE)
---========================================================--
 Config = Config or {}
-Config.Trees = {}   -- filled by server via updateTrees event
+Config.Trees = {}
 
 --========================================================--
---  RECEIVE TREE DATA FROM SERVER
+--  RECEIVE TREE DATA
 --========================================================--
 RegisterNetEvent("jims-lumberjack:updateTrees", function(trees)
     Config.Trees = trees or {}
@@ -24,15 +20,13 @@ RegisterNetEvent("jims-lumberjack:updateTrees", function(trees)
 end)
 
 --========================================================--
---  PLAY CHOP ANIMATION
+--  CHOP ANIMATION
 --========================================================--
 local function PlayChopAnim()
     local ped = PlayerPedId()
 
     RequestAnimDict("mech_lumberjack@chop_wood")
-    while not HasAnimDictLoaded("mech_lumberjack@chop_wood") do
-        Wait(10)
-    end
+    while not HasAnimDictLoaded("mech_lumberjack@chop_wood") do Wait(10) end
 
     TaskPlayAnim(ped, "mech_lumberjack@chop_wood", "chop_wood", 8.0, -8.0, 1500, 1, 0, false, 0, false)
 end
@@ -48,12 +42,10 @@ local function GetNearestTree()
     local pcoords = GetEntityCoords(ped)
 
     for id, tree in pairs(data.trees) do
-        local dist = Utils.Distance(pcoords, vector3(tree.x, tree.y, tree.z))
-        if dist <= Config.InteractDistance then
+        if Utils.Distance(pcoords, vector3(tree.x, tree.y, tree.z)) <= Config.InteractDistance then
             return id, tree
         end
     end
-
     return nil
 end
 
@@ -66,16 +58,13 @@ local function StartChopping(treeId)
     hitCount = 0
     currentTree = treeId
 
-    Utils.Debug("Started chopping tree: " .. tostring(treeId))
-
     CreateThread(function()
         while chopping do
             Wait(0)
 
-            -- LEFT CLICK
             if IsControlJustPressed(0, 0x07CE1E61) then
                 PlayChopAnim()
-                hitCount = hitCount + 1
+                hitCount += 1
 
                 if hitCount >= Config.TreeChopHits then
                     chopping = false
@@ -85,7 +74,6 @@ local function StartChopping(treeId)
                 end
             end
 
-            -- Cancel if player walks away
             local _, tree = GetNearestTree()
             if not tree then
                 chopping = false
@@ -97,7 +85,7 @@ local function StartChopping(treeId)
 end
 
 --========================================================--
---  MAIN INTERACTION LOOP
+--  MAIN LOOP
 --========================================================--
 CreateThread(function()
     while true do
@@ -110,13 +98,12 @@ CreateThread(function()
 
         local treeId, tree = GetNearestTree()
         if treeId then
-            -- Draw prompt
             SetTextScale(0.35, 0.35)
             SetTextColor(255, 255, 255, 215)
             SetTextCentre(true)
             DisplayText(CreateVarString(10, "LITERAL_STRING", "Press [E] to Chop Tree"), 0.5, 0.88)
 
-            if IsControlJustPressed(0, 0xCEFD9220) then -- E
+            if IsControlJustPressed(0, 0xCEFD9220) then
                 StartChopping(treeId)
             end
         else
@@ -128,56 +115,39 @@ CreateThread(function()
 end)
 
 --========================================================--
---  SPAWN TREES FROM JSON (PERSISTENT)
+--  SPAWN TREES
 --========================================================--
 CreateThread(function()
     TriggerServerEvent("jims-lumberjack:requestTrees")
 
-    while not Config.Trees or next(Config.Trees) == nil do
-        Wait(100)
-    end
-
+    while not Config.Trees or next(Config.Trees) == nil do Wait(100) end
     Wait(500)
 
     for id, tree in pairs(Config.Trees) do
         local model = GetHashKey(tree.model)
-
         RequestModel(model)
-        while not HasModelLoaded(model) do
-            Wait(10)
-        end
+        while not HasModelLoaded(model) do Wait(10) end
 
-        local obj = CreateObjectNoOffset(
-            model,
-            tree.x,
-            tree.y,
-            tree.z,
-            false, false, false
-        )
-
+        local obj = CreateObjectNoOffset(model, tree.x, tree.y, tree.z, false, false, false)
         SetEntityHeading(obj, tree.heading)
         FreezeEntityPosition(obj, true)
 
         SpawnedTrees[id] = obj
     end
-
-    Utils.Debug("Spawned all persistent lumber trees.")
 end)
 
 --========================================================--
---  TREE FALL SEQUENCE (ANIMATED FALL + ALIGNMENT FIX)
+--  TREE FALL SEQUENCE (REALISTIC)
 --========================================================--
 RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     local tree = Config.Trees[treeId]
     if not tree then return end
 
-    -- Delete standing tree
     if SpawnedTrees[treeId] then
         DeleteObject(SpawnedTrees[treeId])
         SpawnedTrees[treeId] = nil
     end
 
-    -- Determine fall models
     local startModel, endModel
     if tree.model == "treefall_flat_start" then
         startModel = "treefall_flat_start"
@@ -187,12 +157,10 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
         endModel   = "des_treefall_up15_end"
     end
 
-    -- Load start model
     local startHash = GetHashKey(startModel)
     RequestModel(startHash)
     while not HasModelLoaded(startHash) do Wait(10) end
 
-    -- Forward vector
     local headingRad = math.rad(tree.heading)
     local forwardX = math.sin(headingRad)
     local forwardY = math.cos(headingRad)
@@ -204,23 +172,25 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     SetEntityHeading(obj, tree.heading)
     FreezeEntityPosition(obj, false)
 
-    -- Crack sound
-    Citizen.InvokeNative(0xCCE219C922737BFA, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0, 0, 0, true, 0)
-
-    -- Camera shake
-    local ped = PlayerPedId()
-    if #(GetEntityCoords(ped) - vector3(tree.x, tree.y, tree.z)) < 25.0 then
-        ShakeGameplayCam("SMALL_EXPLOSION_SHAKE", 0.3)
+    -- Slight pre‑fall wobble (subtle)
+    for i = 1, 10 do
+        local wobble = math.sin(i * 0.3) * 1.2
+        SetEntityRotation(obj, wobble, 0.0, tree.heading, 2, true)
+        Wait(15)
     end
 
-    -- Animate fall
-    local duration = 1200
-    local steps = 90
+    -- Delayed crack (feels weighty)
+    Citizen.InvokeNative(0xCCE219C922737BFA, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0,0,0,true,0)
+    Wait(150)
+
+    -- Smooth fall
+    local duration = 1400
+    local steps = 110
     local waitPerStep = math.floor(duration / steps)
-    local totalRotation = 80.0
+    local totalRotation = 88.0
 
     for i = 1, steps do
-        local t = (i / steps) ^ 1.4 -- ease-in curve
+        local t = (i / steps) ^ 1.6  -- smoother ease-in
 
         local curDist = fallDistance * t
         local newX = tree.x + forwardX * curDist
@@ -234,12 +204,11 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
         Wait(waitPerStep)
     end
 
-    -- Impact position
+    -- Impact
     local impactX = tree.x + forwardX * fallDistance
     local impactY = tree.y + forwardY * fallDistance
 
-    -- Thud sound
-    Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", impactX, impactY, tree.z, 0, 0, 0, true, 0)
+    Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", impactX, impactY, tree.z, 0,0,0,true,0)
 
     -- Load end model
     local endHash = GetHashKey(endModel)
@@ -248,10 +217,8 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
 
     DeleteObject(obj)
 
-    --========================================================--
-    --  MODEL-SPECIFIC ALIGNMENT FIX
-    --========================================================--
-    local endOffsetX = -0.8   -- shifted left by 1 meter
+    -- Alignment tuning (your values)
+    local endOffsetX = -0.8
     local endOffsetY = -0.8
 
     if endModel == "des_treefall_up15_end" then
@@ -259,11 +226,9 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
         endOffsetY = -1.2
     end
 
-    -- Rotate offsets into world space
     local finalX = impactX + forwardX * endOffsetY + forwardY * endOffsetX
     local finalY = impactY + forwardY * endOffsetY + forwardX * endOffsetX
 
-    -- Spawn corrected fallen model
     local fallen = CreateObjectNoOffset(endHash, finalX, finalY, tree.z, false, false, false)
     SetEntityHeading(fallen, tree.heading)
     FreezeEntityPosition(fallen, true)
@@ -273,7 +238,7 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
 end)
 
 --========================================================--
---  DEBUG: TEST FALL COMMAND
+--  DEBUG COMMAND
 --========================================================--
 RegisterCommand("testfall", function()
     local ped = PlayerPedId()
@@ -281,8 +246,7 @@ RegisterCommand("testfall", function()
 
     local nearestId
     for id, tree in pairs(Config.Trees) do
-        local dist = #(pcoords - vector3(tree.x, tree.y, tree.z))
-        if dist < 10.0 then
+        if #(pcoords - vector3(tree.x, tree.y, tree.z)) < 10.0 then
             nearestId = id
             break
         end
