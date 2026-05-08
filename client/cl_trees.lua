@@ -167,7 +167,7 @@ CreateThread(function()
 end)
 
 --========================================================--
---  TREE FALL SEQUENCE (MATCHES VIDEO EXACTLY)
+--  TREE FALL SEQUENCE (ANIMATED FALL + FX)
 --========================================================--
 RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     local tree = Config.Trees[treeId]
@@ -195,32 +195,96 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     RequestModel(startHash)
     while not HasModelLoaded(startHash) do Wait(10) end
 
-    -- Spawn falling-start model
-    local obj = CreateObjectNoOffset(startHash, tree.x, tree.y, tree.z, false, false, false)
-    SetEntityHeading(obj, tree.heading)
-    FreezeEntityPosition(obj, true)
+    -- Forward vector from heading
+    local headingRad = math.rad(tree.heading)
+    local forwardX = math.sin(headingRad)
+    local forwardY = math.cos(headingRad)
 
-    -- Play cracking sound
+    -- How far forward the tree will fall
+    local fallDistance = 2.0
+
+    -- Spawn falling-start model at base position
+    local obj = CreateObjectNoOffset(
+        startHash,
+        tree.x,
+        tree.y,
+        tree.z,
+        false, false, false
+    )
+    SetEntityHeading(obj, tree.heading)
+    FreezeEntityPosition(obj, false)
+
+    -- Play cracking sound at start
     Citizen.InvokeNative(0xCCE219C922737BFA, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0, 0, 0, true, 0)
 
-    -- Wait for fall timing (matches video)
-    Wait(1200)
+    -- Camera shake for nearby players
+    local ped = PlayerPedId()
+    local pcoords = GetEntityCoords(ped)
+    if #(pcoords - vector3(tree.x, tree.y, tree.z)) < 25.0 then
+        ShakeGameplayCam("SMALL_EXPLOSION_SHAKE", 0.3)
+    end
+
+    -- Dust FX at base
+    UseParticleFxAssetNextCall("core")
+    local dustFx = StartParticleFxLoopedAtCoord(
+        "ent_amb_wood_splinter",
+        tree.x, tree.y, tree.z,
+        0.0, 0.0, 0.0,
+        1.0, false, false, false, false
+    )
+
+    -- Animate fall: rotate + move forward over time
+    local duration = 1200 -- ms
+    local steps = 30
+    local waitPerStep = math.floor(duration / steps)
+    local totalRotation = 80.0 -- degrees to tip
+
+    for i = 1, steps do
+        local t = i / steps
+
+        -- Move forward
+        local curDist = fallDistance * t
+        local newX = tree.x + forwardX * curDist
+        local newY = tree.y + forwardY * curDist
+
+        SetEntityCoordsNoOffset(obj, newX, newY, tree.z, false, false, false)
+
+        -- Rotate around X to simulate tipping
+        local rotX = totalRotation * t
+        SetEntityRotation(obj, rotX, 0.0, tree.heading, 2, true)
+
+        Wait(waitPerStep)
+    end
+
+    -- Stop dust
+    if dustFx then
+        StopParticleFxLooped(dustFx, false)
+    end
+
+    -- Play thud sound at impact
+    local impactX = tree.x + forwardX * fallDistance
+    local impactY = tree.y + forwardY * fallDistance
+    Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", impactX, impactY, tree.z, 0, 0, 0, true, 0)
 
     -- Load end model
     local endHash = GetHashKey(endModel)
     RequestModel(endHash)
     while not HasModelLoaded(endHash) do Wait(10) end
 
-    -- Swap to fallen-end model
+    -- Swap to fallen-end model at final position
     DeleteObject(obj)
-    local fallen = CreateObjectNoOffset(endHash, tree.x, tree.y, tree.z, false, false, false)
+
+    local fallen = CreateObjectNoOffset(
+        endHash,
+        impactX,
+        impactY,
+        tree.z,
+        false, false, false
+    )
     SetEntityHeading(fallen, tree.heading)
     FreezeEntityPosition(fallen, true)
 
-    -- Play thud sound
-    Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", tree.x, tree.y, tree.z, 0, 0, 0, true, 0)
-
-    -- Remove fallen tree after 5 seconds
+    -- Keep fallen tree for a few seconds, then remove
     Wait(5000)
     DeleteObject(fallen)
 end)
