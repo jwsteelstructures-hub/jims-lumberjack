@@ -251,11 +251,11 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     --========================================================--
     --  MODEL-SPECIFIC ALIGNMENT FIX
     --========================================================--
-    local endOffsetX = -0.7   -- shifted left by 1 meter
+    local endOffsetX = -0.8   -- shifted left by 1 meter
     local endOffsetY = -0.8
 
     if endModel == "des_treefall_up15_end" then
-        endOffsetX = -0.7
+        endOffsetX = -0.8
         endOffsetY = -1.2
     end
 
