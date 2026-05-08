@@ -165,19 +165,20 @@ CreateThread(function()
 end)
 
 --========================================================--
---  TREE FALL SEQUENCE (ANIMATED FALL, NO PARTICLES)
+--  TREE FALL SEQUENCE (ANIMATED FALL + ALIGNMENT FIX)
 --========================================================--
 RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     local tree = Config.Trees[treeId]
     if not tree then return end
 
+    -- Delete standing tree
     if SpawnedTrees[treeId] then
         DeleteObject(SpawnedTrees[treeId])
         SpawnedTrees[treeId] = nil
     end
 
+    -- Determine fall models
     local startModel, endModel
-
     if tree.model == "treefall_flat_start" then
         startModel = "treefall_flat_start"
         endModel   = "treefall_flat_end"
@@ -186,34 +187,33 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
         endModel   = "des_treefall_up15_end"
     end
 
+    -- Load start model
     local startHash = GetHashKey(startModel)
     RequestModel(startHash)
     while not HasModelLoaded(startHash) do Wait(10) end
 
+    -- Forward vector
     local headingRad = math.rad(tree.heading)
     local forwardX = math.sin(headingRad)
     local forwardY = math.cos(headingRad)
 
     local fallDistance = 2.0
 
-    local obj = CreateObjectNoOffset(
-        startHash,
-        tree.x,
-        tree.y,
-        tree.z,
-        false, false, false
-    )
+    -- Spawn falling-start model
+    local obj = CreateObjectNoOffset(startHash, tree.x, tree.y, tree.z, false, false, false)
     SetEntityHeading(obj, tree.heading)
     FreezeEntityPosition(obj, false)
 
+    -- Crack sound
     Citizen.InvokeNative(0xCCE219C922737BFA, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0, 0, 0, true, 0)
 
+    -- Camera shake
     local ped = PlayerPedId()
-    local pcoords = GetEntityCoords(ped)
-    if #(pcoords - vector3(tree.x, tree.y, tree.z)) < 25.0 then
+    if #(GetEntityCoords(ped) - vector3(tree.x, tree.y, tree.z)) < 25.0 then
         ShakeGameplayCam("SMALL_EXPLOSION_SHAKE", 0.3)
     end
 
+    -- Animate fall
     local duration = 1200
     local steps = 30
     local waitPerStep = math.floor(duration / steps)
@@ -234,24 +234,40 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
         Wait(waitPerStep)
     end
 
+    -- Impact position
     local impactX = tree.x + forwardX * fallDistance
     local impactY = tree.y + forwardY * fallDistance
 
+    -- Thud sound
     Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", impactX, impactY, tree.z, 0, 0, 0, true, 0)
 
+    -- Load end model
     local endHash = GetHashKey(endModel)
     RequestModel(endHash)
     while not HasModelLoaded(endHash) do Wait(10) end
 
     DeleteObject(obj)
 
-    local fallen = CreateObjectNoOffset(
-        endHash,
-        impactX,
-        impactY,
-        tree.z,
-        false, false, false
-    )
+    --========================================================--
+    --  MODEL-SPECIFIC ALIGNMENT FIX
+    --========================================================--
+    local endOffsetX = 0.0
+    local endOffsetY = 0.0
+
+    if endModel == "treefall_flat_end" then
+        endOffsetX = 0.3
+        endOffsetY = -0.8
+    elseif endModel == "des_treefall_up15_end" then
+        endOffsetX = -0.2
+        endOffsetY = -1.2
+    end
+
+    -- Rotate offsets into world space
+    local finalX = impactX + forwardX * endOffsetY + forwardY * endOffsetX
+    local finalY = impactY + forwardY * endOffsetY + forwardX * endOffsetX
+
+    -- Spawn corrected fallen model
+    local fallen = CreateObjectNoOffset(endHash, finalX, finalY, tree.z, false, false, false)
     SetEntityHeading(fallen, tree.heading)
     FreezeEntityPosition(fallen, true)
 
