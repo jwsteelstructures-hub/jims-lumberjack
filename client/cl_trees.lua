@@ -201,7 +201,7 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     FreezeEntityPosition(obj, true)
 
     -- Play cracking sound
-    PlaySoundFromCoord2(-1, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0, 0, 0)
+    Citizen.InvokeNative(0xCCE219C922737BFA, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0, 0, 0, true, 0)
 
     -- Wait for fall timing (matches video)
     Wait(1200)
@@ -218,7 +218,7 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     FreezeEntityPosition(fallen, true)
 
     -- Play thud sound
-    PlaySoundFromCoord2(-1, "TREE_FALL_LAND", tree.x, tree.y, tree.z, 0, 0, 0)
+    Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", tree.x, tree.y, tree.z, 0, 0, 0, true, 0)
 
     -- Remove fallen tree after 5 seconds
     Wait(5000)
