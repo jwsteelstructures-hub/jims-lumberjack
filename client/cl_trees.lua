@@ -7,9 +7,93 @@ local currentTree = nil
 local hitCount = 0
 
 local SpawnedTrees = {}
+local StumpEntities = {} -- NEW: per-tree stump anchors
 
 Config = Config or {}
 Config.Trees = {}
+
+local STUMP_MODEL = `p_bottle001x`
+local STUMP_Z_OFFSET = 0.20 -- sinks 4–8 inches like your trees
+
+--========================================================--
+--  INTERNAL HELPERS
+--========================================================--
+local function LoadModel(hash)
+    if not IsModelValid(hash) then return false end
+    RequestModel(hash)
+    local timeout = GetGameTimer() + 5000
+    while not HasModelLoaded(hash) do
+        if GetGameTimer() > timeout then return false end
+        Wait(10)
+    end
+    return true
+end
+
+local function SpawnStump(treeId, tree)
+    if StumpEntities[treeId] and DoesEntityExist(StumpEntities[treeId]) then
+        return
+    end
+
+    if not LoadModel(STUMP_MODEL) then return end
+
+    local stump = CreateObjectNoOffset(
+        STUMP_MODEL,
+        tree.x,
+        tree.y,
+        tree.z - STUMP_Z_OFFSET,
+        false, false, false
+    )
+
+    SetEntityHeading(stump, tree.heading or 0.0)
+    SetEntityAlpha(stump, 0, false)
+    SetEntityCollision(stump, false, false)
+    SetEntityScale(stump, 0.01)
+
+    StumpEntities[treeId] = stump
+end
+
+local function DeleteStump(treeId)
+    local stump = StumpEntities[treeId]
+    if stump and DoesEntityExist(stump) then
+        DeleteObject(stump)
+    end
+    StumpEntities[treeId] = nil
+end
+
+local function SpawnStandingTree(treeId, tree)
+    if SpawnedTrees[treeId] and DoesEntityExist(SpawnedTrees[treeId]) then
+        return
+    end
+
+    local model = GetHashKey(tree.model)
+    if not LoadModel(model) then return end
+
+    local obj = CreateObjectNoOffset(model, tree.x, tree.y, tree.z, false, false, false)
+    SetEntityHeading(obj, tree.heading)
+    FreezeEntityPosition(obj, true)
+
+    SpawnedTrees[treeId] = obj
+end
+
+local function DeleteStandingTree(treeId)
+    local obj = SpawnedTrees[treeId]
+    if obj and DoesEntityExist(obj) then
+        DeleteObject(obj)
+    end
+    SpawnedTrees[treeId] = nil
+end
+
+local function RefreshTreeVisual(treeId, tree)
+    -- ready  -> standing tree, no stump
+    -- cooldown -> stump only
+    if tree.state == "ready" then
+        DeleteStump(treeId)
+        SpawnStandingTree(treeId, tree)
+    else
+        DeleteStandingTree(treeId)
+        SpawnStump(treeId, tree)
+    end
+end
 
 --========================================================--
 --  RECEIVE TREE DATA
@@ -17,6 +101,11 @@ Config.Trees = {}
 RegisterNetEvent("jims-lumberjack:updateTrees", function(trees)
     Config.Trees = trees or {}
     Utils.Debug("Tree states updated. Received " .. tostring(#Config.Trees) .. " trees.")
+
+    -- Refresh visuals for all trees on update
+    for id, tree in pairs(Config.Trees) do
+        RefreshTreeVisual(id, tree)
+    end
 end)
 
 --========================================================--
@@ -97,7 +186,7 @@ CreateThread(function()
         end
 
         local treeId, tree = GetNearestTree()
-        if treeId then
+        if treeId and tree.state == "ready" then
             SetTextScale(0.35, 0.35)
             SetTextColor(255, 255, 255, 215)
             SetTextCentre(true)
@@ -115,7 +204,7 @@ CreateThread(function()
 end)
 
 --========================================================--
---  SPAWN TREES
+--  INITIAL SPAWN TREES
 --========================================================--
 CreateThread(function()
     TriggerServerEvent("jims-lumberjack:requestTrees")
@@ -124,29 +213,20 @@ CreateThread(function()
     Wait(500)
 
     for id, tree in pairs(Config.Trees) do
-        local model = GetHashKey(tree.model)
-        RequestModel(model)
-        while not HasModelLoaded(model) do Wait(10) end
-
-        local obj = CreateObjectNoOffset(model, tree.x, tree.y, tree.z, false, false, false)
-        SetEntityHeading(obj, tree.heading)
-        FreezeEntityPosition(obj, true)
-
-        SpawnedTrees[id] = obj
+        RefreshTreeVisual(id, tree)
     end
 end)
 
 --========================================================--
---  TREE FALL SEQUENCE (REALISTIC)
+--  TREE FALL SEQUENCE (REALISTIC + STUMP PIN)
 --========================================================--
 RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     local tree = Config.Trees[treeId]
     if not tree then return end
 
-    if SpawnedTrees[treeId] then
-        DeleteObject(SpawnedTrees[treeId])
-        SpawnedTrees[treeId] = nil
-    end
+    -- Delete standing tree, ensure stump exists
+    DeleteStandingTree(treeId)
+    SpawnStump(treeId, tree)
 
     local startModel, endModel
     if tree.model == "treefall_flat_start" then
@@ -158,8 +238,7 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     end
 
     local startHash = GetHashKey(startModel)
-    RequestModel(startHash)
-    while not HasModelLoaded(startHash) do Wait(10) end
+    if not LoadModel(startHash) then return end
 
     local headingRad = math.rad(tree.heading)
     local forwardX = math.sin(headingRad)
@@ -190,7 +269,7 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     local totalRotation = 88.0
 
     for i = 1, steps do
-        local t = (i / steps) ^ 1.6  -- smoother ease-in
+        local t = (i / steps) ^ 1.6
 
         local curDist = fallDistance * t
         local newX = tree.x + forwardX * curDist
@@ -212,8 +291,10 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
 
     -- Load end model
     local endHash = GetHashKey(endModel)
-    RequestModel(endHash)
-    while not HasModelLoaded(endHash) do Wait(10) end
+    if not LoadModel(endHash) then
+        DeleteObject(obj)
+        return
+    end
 
     DeleteObject(obj)
 
@@ -233,6 +314,10 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     SetEntityHeading(fallen, tree.heading)
     FreezeEntityPosition(fallen, true)
 
+    -- NOTE: we do NOT delete the stump here.
+    -- Stump stays until server flips state back to "ready" and updateTrees refreshes visuals.
+
+    -- Optional: if you want the fallen trunk to vanish after some time:
     Wait(5000)
     DeleteObject(fallen)
 end)
